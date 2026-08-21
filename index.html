@@ -34,9 +34,13 @@
                 <!-- Javascript will inject guess rows here -->
             </div>
             
+            <!-- Main Screen Next Button (Hidden until game over) -->
+            <button id="main-next-btn" class="next-btn hidden">Next Puzzle ➡️</button>
+
             <!-- Helper Legend -->
             <div class="legend">
-                [ ⬆️ / ⬇️ = Target is higher / lower ] &nbsp;|&nbsp; [ 🟨 = Value is within ±10% ]
+                <div>[ ⬆️ / ⬇️ = Target is higher / lower ]</div>
+                <div>[ 🟨 = Value is within ±10% ]</div>
             </div>
         </div>
 
@@ -50,12 +54,13 @@
     <!-- Post-Game Modal -->
     <div id="modal" class="modal hidden">
         <div class="modal-content">
+            <span id="close-modal" class="close-btn">&times;</span>
             <h2 id="modal-title"></h2>
             <p id="modal-message"></p>
             <div class="target-reveal">
                 Answer: <span id="target-company-name"></span>
             </div>
-            <button id="next-puzzle-btn" class="next-btn hidden">Next Puzzle ➡️</button>
+            <button id="modal-next-btn" class="next-btn hidden">Next Puzzle ➡️</button>
         </div>
     </div>
 

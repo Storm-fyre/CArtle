@@ -5,7 +5,7 @@ let metricsData = [];
 let factsData = [];
 let targetMetric = null;
 let targetFact = null;
-let currentPuzzleIndex = 0; // Endless mode index
+let currentPuzzleIndex = 0; 
 let guesses = [];
 let gameOver = false;
 
@@ -15,11 +15,15 @@ const autocompleteList = document.getElementById('autocomplete-list');
 const gridRows = document.getElementById('grid-rows');
 const clueText = document.getElementById('clue-text');
 const puzzleCounter = document.getElementById('puzzle-counter');
+
+// Modal & Buttons
 const modal = document.getElementById('modal');
 const modalTitle = document.getElementById('modal-title');
 const modalMessage = document.getElementById('modal-message');
 const targetCompanyName = document.getElementById('target-company-name');
-const nextPuzzleBtn = document.getElementById('next-puzzle-btn');
+const modalNextBtn = document.getElementById('modal-next-btn');
+const mainNextBtn = document.getElementById('main-next-btn');
+const closeModalBtn = document.getElementById('close-modal');
 
 // 1. Initialize Game
 async function init() {
@@ -41,11 +45,10 @@ async function init() {
     }
 }
 
-// 2. Setup the target for the current puzzle
+// 2. Setup Puzzle & Smart Auto-Focus
 function setupCurrentPuzzle() {
     puzzleCounter.innerText = `#Puzzle ${currentPuzzleIndex + 1}`;
     
-    // Modulo math ensures we loop through facts endlessly if we run out
     const factIndex = currentPuzzleIndex % factsData.length;
     targetFact = factsData[factIndex];
     targetMetric = metricsData.find(m => m.ticker === targetFact.ticker);
@@ -57,6 +60,8 @@ function setupCurrentPuzzle() {
     searchInput.value = '';
     gameOver = false;
     modal.classList.add('hidden');
+    mainNextBtn.classList.add('hidden');
+    modalNextBtn.classList.add('hidden');
     updateClueUI();
 
     // Re-render saved guesses if any
@@ -66,6 +71,11 @@ function setupCurrentPuzzle() {
     
     if (guesses.length > 0) {
         checkGameStatus();
+    } else {
+        // Smart Auto-Focus: Only auto-focus if screen is wider than a typical mobile phone (768px)
+        if (window.innerWidth > 768) {
+            searchInput.focus();
+        }
     }
 }
 
@@ -113,14 +123,12 @@ function renderRow(guess, animate = false, rowIndex) {
     const row = document.createElement('div');
     row.className = 'grid-row';
     
-    // Words (Strict Green/Red)
     const isTickerMatch = guess.ticker === targetMetric.ticker;
     const tickerDiv = createCell({ text: guess.ticker, cls: isTickerMatch ? 'correct' : 'wrong', arrow: '' }, animate, 0);
     
     const isSectorMatch = guess.sector === targetMetric.sector;
     const sectorDiv = createCell({ text: guess.sector, cls: isSectorMatch ? 'correct' : 'wrong', arrow: '' }, animate, 1);
     
-    // Numbers Math: Green (exact), Yellow (±10%), Red (outside)
     const mcapInfo = compareNumbers(guess.market_cap_cr, targetMetric.market_cap_cr);
     const mcapDiv = createCell(mcapInfo, animate, 2);
 
@@ -161,18 +169,15 @@ function compareNumbers(guessVal, targetVal) {
     // Check if within +/- 10%
     const isYellow = Math.abs(guessVal - targetVal) <= Math.abs(targetVal * 0.1);
     const cls = isYellow ? 'close' : 'wrong';
-    
-    // Determine arrow
     const arrow = guessVal > targetVal ? '⬇️' : '⬆️';
     
     return { text: guessVal, cls: cls, arrow: arrow };
 }
 
-// 5. Clue Mechanics (Progressive Un-Redaction)
+// 5. Progressive Un-Redaction
 function updateClueUI() {
     const fails = guesses.length;
     
-    // If they win, don't update to a new clue string, keep what they had
     if (guesses.length > 0 && guesses[guesses.length - 1].ticker === targetMetric.ticker) {
         return; 
     }
@@ -180,11 +185,11 @@ function updateClueUI() {
     if (fails === 0 || fails === 1) {
         clueText.innerText = LOCKED_CLUE_TEXT;
     } else if (fails === 2) {
-        clueText.innerText = targetFact.clues[0]; // Heavy redact
+        clueText.innerText = targetFact.clues[0]; 
     } else if (fails === 3) {
-        clueText.innerText = targetFact.clues[1]; // Single redact
+        clueText.innerText = targetFact.clues[1]; 
     } else if (fails === 4) {
-        clueText.innerText = targetFact.clues[2]; // Full text (Final blind guess)
+        clueText.innerText = targetFact.clues[2]; 
     }
 }
 
@@ -206,28 +211,35 @@ function endGame(isWin) {
     searchInput.placeholder = "Audit Complete.";
     
     setTimeout(() => {
-        modalTitle.innerText = isWin ? "🎉 AUDIT PASSED 🎉" : "❌ AUDIT FAILED ❌";
+        modalTitle.innerText = isWin ? "🎯 TARGET IDENTIFIED" : "❌ DUE DILIGENCE FAILED";
         modalTitle.style.color = isWin ? "var(--neon-green)" : "var(--harsh-red)";
         modalMessage.innerText = isWin 
             ? `You figured it out in ${guesses.length}/${MAX_GUESSES} attempts!` 
             : `The books were too messy.`;
         targetCompanyName.innerText = targetMetric.company_name;
         
-        nextPuzzleBtn.classList.remove('hidden');
+        modalNextBtn.classList.remove('hidden');
+        mainNextBtn.classList.remove('hidden'); // Show on main screen too
         modal.classList.remove('hidden');
     }, 1200);
 }
 
-// 7. Endless Progression
-nextPuzzleBtn.addEventListener('click', () => {
-    // Increment puzzle, wipe guesses, save, and reload
+// 7. Modals and Endless Progression
+closeModalBtn.addEventListener('click', () => {
+    modal.classList.add('hidden');
+});
+
+function goToNextPuzzle() {
     currentPuzzleIndex++;
     guesses = [];
     saveState();
     setupCurrentPuzzle();
-});
+}
 
-// 8. Local Storage Save/Load
+modalNextBtn.addEventListener('click', goToNextPuzzle);
+mainNextBtn.addEventListener('click', goToNextPuzzle);
+
+// 8. Local Storage
 function saveState() {
     const state = {
         puzzleIndex: currentPuzzleIndex,
@@ -251,5 +263,4 @@ function loadState() {
     });
 }
 
-// Boot up
 window.onload = init;

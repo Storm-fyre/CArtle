@@ -5,7 +5,7 @@
     --neon-green: #39ff14;
     --harsh-red: #ff073a;
     --alert-yellow: #ffeb3b;
-    --row-border-blue: #4A90E2;
+    --button-border-blue: #4A90E2;
     --border-color: #333333;
     --terminal-font: 'Courier New', Courier, monospace;
 }
@@ -27,18 +27,8 @@ body {
     padding: 15px;
 }
 
-header {
-    text-align: center;
-    margin-bottom: 20px;
-    width: 100%;
-}
-
-header h1 {
-    font-size: 1.8rem;
-    color: var(--neon-green);
-    letter-spacing: 2px;
-}
-
+header { text-align: center; margin-bottom: 20px; width: 100%; }
+header h1 { font-size: 1.8rem; color: var(--neon-green); letter-spacing: 2px; }
 .subtitle { font-size: 1rem; margin-top: 5px; color: #aaaaaa; }
 .disclaimer { font-size: 0.75rem; color: #ffaa00; margin-top: 10px; }
 
@@ -96,10 +86,15 @@ main {
     padding: 10px;
 }
 
-.grid-header {
+/* Base grid template used for headers and rows */
+.grid-header, .grid-row {
     display: grid;
     grid-template-columns: 1.8fr 1.5fr 1.2fr 1fr 1fr 1fr;
+    gap: 4px; /* Gap between the buttons */
     text-align: center;
+}
+
+.grid-header {
     font-size: 0.75rem;
     font-weight: bold;
     color: #888888;
@@ -108,34 +103,26 @@ main {
     margin-bottom: 10px;
 }
 
-/* Unified Row with Blue Border */
-.grid-row {
-    display: grid;
-    grid-template-columns: 1.8fr 1.5fr 1.2fr 1fr 1fr 1fr;
-    border: 1px solid var(--row-border-blue); /* The thin blue line */
-    border-radius: 4px;
-    margin-bottom: 6px;
-    overflow: hidden; /* Ensures inner colored cells respect the border curve */
-}
+.grid-row { margin-bottom: 6px; }
 
+/* Individual Button Tiles */
 .grid-row div {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     padding: 8px 2px;
-    text-align: center;
     font-size: 0.75rem;
-    min-height: 48px; /* Forces all cells in row to stretch equally */
-    border-right: 1px solid rgba(255,255,255,0.05); /* subtle separator between cells */
+    min-height: 48px; /* Forces equal heights */
+    border: 1px solid var(--button-border-blue); /* Blue border on EVERY cell */
+    border-radius: 4px;
     word-wrap: break-word;
 }
-.grid-row div:last-child { border-right: none; }
 
 /* Result Colors */
-.correct { background-color: var(--neon-green) !important; color: black; font-weight: bold; }
-.wrong { background-color: var(--harsh-red) !important; color: white; font-weight: bold; }
-.close { background-color: var(--alert-yellow) !important; color: black; font-weight: bold; }
+.correct { background-color: var(--neon-green) !important; color: black; font-weight: bold; border-color: var(--neon-green) !important;}
+.wrong { background-color: var(--harsh-red) !important; color: white; font-weight: bold; border-color: var(--harsh-red) !important;}
+.close { background-color: var(--alert-yellow) !important; color: black; font-weight: bold; border-color: var(--alert-yellow) !important;}
 
 /* The Arrow Wrapper */
 .arrow { font-size: 0.85rem; margin-bottom: 3px; }
@@ -147,8 +134,11 @@ main {
 }
 .animate-flip { animation: flipIn 0.5s ease-out forwards; }
 
-/* Legend */
+/* Legend (Stacked) */
 .legend {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
     text-align: center;
     margin-top: 15px;
     font-size: 0.7rem;
@@ -183,12 +173,27 @@ main {
     border-radius: 8px;
     text-align: center;
     max-width: 90%;
+    position: relative; /* So the 'X' can be absolutely positioned */
 }
-.modal-content h2 { margin-bottom: 15px; }
+
+/* Close Modal Button */
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    color: #aaaaaa;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.close-btn:hover { color: white; }
+
+.modal-content h2 { margin-bottom: 15px; font-size: 1.4rem; }
 .target-reveal { margin-top: 20px; margin-bottom: 25px; font-weight: bold; font-size: 1.1rem; color: var(--neon-green); }
 
+/* Next Button */
 .next-btn {
-    background-color: var(--row-border-blue);
+    background-color: var(--button-border-blue);
     color: white;
     border: none;
     padding: 12px 20px;
@@ -197,6 +202,10 @@ main {
     cursor: pointer;
     border-radius: 4px;
     font-weight: bold;
+    width: 100%;
 }
 .next-btn:hover { background-color: #357ABD; }
 .next-btn.hidden { display: none; }
+
+/* Main screen next button spacing */
+#main-next-btn { margin-top: 15px; }
