@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CArtle | The Daily Balance Sheet Puzzle</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>📈 CArtle</h1>
+        <div class="subtitle" id="day-counter">Loading Day...</div>
+        <div class="disclaimer">🛑 Based on audited FY/recent market data.</div>
+    </header>
+
+    <main>
+        <!-- Search Input -->
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="🔍 Type a company name or ticker..." autocomplete="off" disabled>
+            <div id="autocomplete-list" class="autocomplete-items"></div>
+        </div>
+
+        <!-- The Game Grid -->
+        <div class="grid-container">
+            <div class="grid-header">
+                <div>TICKER</div>
+                <div>SECTOR</div>
+                <div>MC(Cr)</div>
+                <div>P/E</div>
+                <div>PROM%</div>
+                <div>D/E</div>
+            </div>
+            <div id="grid-rows">
+                <!-- Javascript will inject guess rows here -->
+            </div>
+        </div>
+
+        <!-- The Redacted Clue Box -->
+        <div id="clue-container" class="hidden">
+            <div class="clue-title">📝 Notes to Accounts</div>
+            <div id="clue-text"></div>
+        </div>
+    </main>
+
+    <!-- Post-Game Modal -->
+    <div id="modal" class="modal hidden">
+        <div class="modal-content">
+            <h2 id="modal-title"></h2>
+            <p id="modal-message"></p>
+            <div class="target-reveal">
+                Answer: <span id="target-company-name"></span>
+            </div>
+            <p class="refresh-note">Come back tomorrow for the next CArtle.</p>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

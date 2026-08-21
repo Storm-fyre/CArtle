@@ -1,0 +1,218 @@
+:root {
+    --bg-color: #050505; /* Deep Charcoal/Black */
+    --surface-color: #1a1a1a;
+    --text-main: #e0e0e0;
+    --neon-green: #39ff14;
+    --harsh-red: #ff073a;
+    --border-color: #333333;
+    --terminal-font: 'Courier New', Courier, monospace;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    font-family: var(--terminal-font);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 15px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+header h1 {
+    font-size: 1.8rem;
+    color: var(--neon-green);
+    letter-spacing: 2px;
+}
+
+.subtitle {
+    font-size: 1rem;
+    margin-top: 5px;
+    color: #aaaaaa;
+}
+
+.disclaimer {
+    font-size: 0.75rem;
+    color: #ffaa00;
+    margin-top: 10px;
+}
+
+main {
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Search Bar */
+.search-container {
+    position: relative;
+    width: 100%;
+}
+
+#search-input {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
+    color: var(--neon-green);
+    font-family: var(--terminal-font);
+    font-size: 1rem;
+    border-radius: 4px;
+    outline: none;
+}
+
+#search-input:focus {
+    border-color: var(--neon-green);
+}
+
+.autocomplete-items {
+    position: absolute;
+    border: 1px solid var(--border-color);
+    border-top: none;
+    z-index: 99;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: var(--surface-color);
+    max-height: 250px;
+    overflow-y: auto;
+    border-radius: 0 0 4px 4px;
+}
+
+.autocomplete-items div {
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.9rem;
+}
+
+.autocomplete-items div:hover {
+    background-color: #2a2a2a;
+    color: var(--neon-green);
+}
+
+/* Grid System */
+.grid-container {
+    width: 100%;
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 5px;
+}
+
+.grid-header, .grid-row {
+    display: grid;
+    grid-template-columns: 1.8fr 1.5fr 1.2fr 1fr 1fr 1fr;
+    gap: 2px;
+    text-align: center;
+    font-size: 0.75rem;
+    align-items: center;
+}
+
+.grid-header {
+    font-weight: bold;
+    color: #888888;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 8px;
+}
+
+.grid-row div {
+    padding: 8px 2px;
+    background-color: #222;
+    border-radius: 2px;
+    word-wrap: break-word;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 40px;
+}
+
+/* Colors & Animations */
+.correct {
+    background-color: var(--neon-green) !important;
+    color: black;
+    font-weight: bold;
+}
+
+.wrong {
+    background-color: var(--harsh-red) !important;
+    color: white;
+}
+
+/* Flip Animation */
+@keyframes flipIn {
+    0% { transform: rotateX(-90deg); opacity: 0; }
+    100% { transform: rotateX(0); opacity: 1; }
+}
+
+.animate-flip {
+    animation: flipIn 0.5s ease-out forwards;
+}
+
+/* Clue Box */
+#clue-container {
+    background-color: var(--surface-color);
+    border: 1px dashed #ffaa00;
+    padding: 15px;
+    border-radius: 4px;
+    transition: opacity 0.3s ease;
+}
+
+#clue-container.hidden {
+    display: none;
+}
+
+.clue-title {
+    color: #ffaa00;
+    font-weight: bold;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+}
+
+#clue-text {
+    line-height: 1.4;
+    font-size: 0.9rem;
+}
+
+/* Modal */
+.modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: var(--surface-color);
+    border: 2px solid var(--neon-green);
+    padding: 30px;
+    border-radius: 8px;
+    text-align: center;
+    max-width: 90%;
+}
+
+.modal-content h2 { margin-bottom: 15px; }
+.target-reveal { margin-top: 20px; font-weight: bold; font-size: 1.1rem; color: var(--neon-green); }
+.refresh-note { margin-top: 20px; font-size: 0.8rem; color: #888; }
