@@ -9,7 +9,7 @@
 <body>
     <header>
         <h1>📈 CArtle</h1>
-        <div class="subtitle" id="day-counter">Loading Day...</div>
+        <div class="subtitle" id="puzzle-counter">Loading...</div>
         <div class="disclaimer">🛑 Based on audited FY/recent market data.</div>
     </header>
 
@@ -33,12 +33,17 @@
             <div id="grid-rows">
                 <!-- Javascript will inject guess rows here -->
             </div>
+            
+            <!-- Helper Legend -->
+            <div class="legend">
+                [ ⬆️ / ⬇️ = Target is higher / lower ] &nbsp;|&nbsp; [ 🟨 = Value is within ±10% ]
+            </div>
         </div>
 
-        <!-- The Redacted Clue Box -->
-        <div id="clue-container" class="hidden">
+        <!-- The Clue Box -->
+        <div id="clue-container">
             <div class="clue-title">📝 Notes to Accounts</div>
-            <div id="clue-text"></div>
+            <div id="clue-text">🔒 Classified Auditor Notes: ██████████ ████████ █████████ ████. (Redactions will lift after your 2nd attempt).</div>
         </div>
     </main>
 
@@ -50,7 +55,7 @@
             <div class="target-reveal">
                 Answer: <span id="target-company-name"></span>
             </div>
-            <p class="refresh-note">Come back tomorrow for the next CArtle.</p>
+            <button id="next-puzzle-btn" class="next-btn hidden">Next Puzzle ➡️</button>
         </div>
     </div>
 
