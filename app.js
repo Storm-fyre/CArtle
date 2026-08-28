@@ -1,3 +1,21 @@
+// --- THEME TOGGLE LOGIC ---
+const themeToggleBtn = document.getElementById("theme-toggle");
+
+function initTheme() {
+    const savedTheme = localStorage.getItem('cartleTheme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    themeToggleBtn.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+}
+
+themeToggleBtn.addEventListener("click", () => {
+    const current = document.documentElement.getAttribute("data-theme");
+    const next = current === "light" ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme", next);
+    localStorage.setItem("cartleTheme", next);
+    themeToggleBtn.textContent = next === "dark" ? "☀️" : "🌙";
+});
+
+// --- CORE GAME LOGIC ---
 const MAX_GUESSES = 5;
 const LOCKED_CLUE_TEXT = "🔒 Classified Auditor Notes: ██████████ ████████ █████████ ████. (Redactions will lift after your 2nd attempt).";
 
@@ -27,6 +45,7 @@ const closeModalBtn = document.getElementById('close-modal');
 
 // 1. Initialize Game
 async function init() {
+    initTheme(); // Load Light/Dark Mode
     try {
         const [metricsRes, factsRes] = await Promise.all([
             fetch('metrics.json'),
@@ -45,9 +64,9 @@ async function init() {
     }
 }
 
-// 2. Setup Puzzle & Smart Auto-Focus
+// 2. Setup Puzzle
 function setupCurrentPuzzle() {
-    puzzleCounter.innerText = `#Puzzle ${currentPuzzleIndex + 1}`;
+    puzzleCounter.innerText = `Puzzle ${currentPuzzleIndex + 1}`;
     
     const factIndex = currentPuzzleIndex % factsData.length;
     targetFact = factsData[factIndex];
@@ -56,7 +75,7 @@ function setupCurrentPuzzle() {
     // Reset UI
     gridRows.innerHTML = '';
     searchInput.disabled = false;
-    searchInput.placeholder = "🔍 Type a company name or ticker...";
+    searchInput.placeholder = "Guess a company name or ticker...";
     searchInput.value = '';
     gameOver = false;
     modal.classList.add('hidden');
@@ -72,7 +91,6 @@ function setupCurrentPuzzle() {
     if (guesses.length > 0) {
         checkGameStatus();
     } else {
-        // Smart Auto-Focus: Only auto-focus if screen is wider than a typical mobile phone (768px)
         if (window.innerWidth > 768) {
             searchInput.focus();
         }
@@ -83,12 +101,21 @@ function setupCurrentPuzzle() {
 searchInput.addEventListener('input', function() {
     let val = this.value;
     autocompleteList.innerHTML = '';
-    if (!val) return;
+    if (!val) {
+        autocompleteList.classList.add('hidden');
+        return;
+    }
 
     const matches = metricsData.filter(m => 
         m.company_name.toLowerCase().includes(val.toLowerCase()) || 
         m.ticker.toLowerCase().includes(val.toLowerCase())
     ).slice(0, 5); 
+
+    if(matches.length > 0) {
+        autocompleteList.classList.remove('hidden');
+    } else {
+        autocompleteList.classList.add('hidden');
+    }
 
     matches.forEach(match => {
         let div = document.createElement('div');
@@ -96,6 +123,7 @@ searchInput.addEventListener('input', function() {
         div.addEventListener('click', () => {
             searchInput.value = '';
             autocompleteList.innerHTML = '';
+            autocompleteList.classList.add('hidden');
             handleGuess(match);
         });
         autocompleteList.appendChild(div);
@@ -105,6 +133,7 @@ searchInput.addEventListener('input', function() {
 document.addEventListener('click', function (e) {
     if (e.target !== searchInput) {
         autocompleteList.innerHTML = '';
+        autocompleteList.classList.add('hidden');
     }
 });
 
@@ -166,7 +195,6 @@ function createCell(info, animate, delayIndex) {
 function compareNumbers(guessVal, targetVal) {
     if (guessVal === targetVal) return { text: guessVal, cls: 'correct', arrow: '' };
     
-    // Check if within +/- 10%
     const isYellow = Math.abs(guessVal - targetVal) <= Math.abs(targetVal * 0.1);
     const cls = isYellow ? 'close' : 'wrong';
     const arrow = guessVal > targetVal ? '⬇️' : '⬆️';
@@ -211,15 +239,15 @@ function endGame(isWin) {
     searchInput.placeholder = "Audit Complete.";
     
     setTimeout(() => {
-        modalTitle.innerText = isWin ? "🎯 TARGET IDENTIFIED" : "❌ DUE DILIGENCE FAILED";
-        modalTitle.style.color = isWin ? "var(--neon-green)" : "var(--harsh-red)";
+        modalTitle.innerText = isWin ? "🎯 Target Identified" : "❌ Due Diligence Failed";
+        modalTitle.style.color = isWin ? "var(--tile-correct)" : "var(--accent-gold)";
         modalMessage.innerText = isWin 
             ? `You figured it out in ${guesses.length}/${MAX_GUESSES} attempts!` 
             : `The books were too messy.`;
         targetCompanyName.innerText = targetMetric.company_name;
         
         modalNextBtn.classList.remove('hidden');
-        mainNextBtn.classList.remove('hidden'); // Show on main screen too
+        mainNextBtn.classList.remove('hidden');
         modal.classList.remove('hidden');
     }, 1200);
 }
