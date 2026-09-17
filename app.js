@@ -15,7 +15,7 @@ themeToggleBtn.addEventListener("click", () => {
     themeToggleBtn.textContent = next === "dark" ? "☀️" : "🌙";
 });
 
-// --- CORE GAME LOGIC ---
+// --- CORE GAME STATE & CONSTANTS ---
 const MAX_GUESSES = 5;
 const LOCKED_CLUE_TEXT = "🔒 Classified Auditor Notes: ██████████ ████████ █████████ ████. (Redactions will lift after your 2nd attempt).";
 
@@ -23,9 +23,16 @@ let metricsData = [];
 let factsData = [];
 let targetMetric = null;
 let targetFact = null;
-let currentPuzzleIndex = 0; 
+
+let puzzleOrder = []; 
+let currentOrderIndex = 0; 
 let guesses = [];
 let gameOver = false;
+let modalShown = false;
+
+// Autocomplete Keyboard Navigation State
+let activeAutocompleteIndex = -1;
+let currentAutocompleteMatches = [];
 
 // DOM Elements
 const searchInput = document.getElementById('search-input');
@@ -34,7 +41,7 @@ const gridRows = document.getElementById('grid-rows');
 const clueText = document.getElementById('clue-text');
 const puzzleCounter = document.getElementById('puzzle-counter');
 
-// Modal & Buttons
+// Modal & Navigation Elements
 const modal = document.getElementById('modal');
 const modalTitle = document.getElementById('modal-title');
 const modalMessage = document.getElementById('modal-message');
@@ -45,7 +52,7 @@ const closeModalBtn = document.getElementById('close-modal');
 
 // 1. Initialize Game
 async function init() {
-    initTheme(); // Load Light/Dark Mode
+    initTheme();
     try {
         const [metricsRes, factsRes] = await Promise.all([
             fetch('metrics.json'),
@@ -55,6 +62,7 @@ async function init() {
         metricsData = await metricsRes.json();
         factsData = await factsRes.json();
         
+        initPuzzleOrder();
         loadState();
         setupCurrentPuzzle();
         
@@ -64,88 +72,254 @@ async function init() {
     }
 }
 
-// 2. Setup Puzzle
+// 2. Randomized Endless Order Management (No Predictable Repeating Sequences)
+function initPuzzleOrder() {
+    const savedOrder = localStorage.getItem('CArtle_Order');
+    if (savedOrder) {
+        try {
+            const parsed = JSON.parse(savedOrder);
+            if (Array.isArray(parsed) && parsed.length === factsData.length) {
+                puzzleOrder = parsed;
+                return;
+            }
+        } catch (e) {
+            console.error("Could not parse saved puzzle order, generating fresh sequence.", e);
+        }
+    }
+    generateNewShuffle();
+}
+
+function generateNewShuffle() {
+    puzzleOrder = factsData.map((_, i) => i);
+    // Fisher-Yates Shuffle
+    for (let i = puzzleOrder.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [puzzleOrder[i], puzzleOrder[j]] = [puzzleOrder[j], puzzleOrder[i]];
+    }
+    localStorage.setItem('CArtle_Order', JSON.stringify(puzzleOrder));
+}
+
+// 3. Setup Current Puzzle
 function setupCurrentPuzzle() {
-    puzzleCounter.innerText = `Puzzle ${currentPuzzleIndex + 1}`;
+    if (currentOrderIndex >= puzzleOrder.length) {
+        generateNewShuffle();
+        currentOrderIndex = 0;
+    }
+
+    puzzleCounter.innerText = `Puzzle ${currentOrderIndex + 1}`;
     
-    const factIndex = currentPuzzleIndex % factsData.length;
+    const factIndex = puzzleOrder[currentOrderIndex];
     targetFact = factsData[factIndex];
     targetMetric = metricsData.find(m => m.ticker === targetFact.ticker);
 
+    if (!targetMetric) {
+        console.error(`Metric data missing for ticker: ${targetFact.ticker}`);
+        return;
+    }
+
     // Reset UI
     gridRows.innerHTML = '';
-    searchInput.disabled = false;
-    searchInput.placeholder = "Guess a company name or ticker...";
-    searchInput.value = '';
-    gameOver = false;
-    modal.classList.add('hidden');
-    mainNextBtn.classList.add('hidden');
-    modalNextBtn.classList.add('hidden');
-    updateClueUI();
-
-    // Re-render saved guesses if any
-    guesses.forEach((guess, idx) => {
-        renderRow(guess, false, idx); 
-    });
+    autocompleteList.innerHTML = '';
+    autocompleteList.classList.add('hidden');
     
-    if (guesses.length > 0) {
-        checkGameStatus();
+    // Check if current puzzle is already completed
+    const isCompleted = gameOver || guesses.length >= MAX_GUESSES || (guesses.length > 0 && guesses[guesses.length - 1].ticker === targetMetric.ticker);
+
+    if (isCompleted) {
+        gameOver = true;
+        searchInput.disabled = true;
+        searchInput.placeholder = "Audit Complete.";
+        mainNextBtn.classList.remove('hidden');
+        modalNextBtn.classList.remove('hidden');
+
+        // Render previous guesses statically without animation
+        guesses.forEach((guess, idx) => {
+            renderRow(guess, false, idx);
+        });
+
+        // Show full clue payoff
+        revealFullAuditorClue();
     } else {
+        gameOver = false;
+        modalShown = false;
+        searchInput.disabled = false;
+        searchInput.placeholder = "Guess a company name or ticker...";
+        searchInput.value = '';
+        modal.classList.add('hidden');
+        mainNextBtn.classList.add('hidden');
+        modalNextBtn.classList.add('hidden');
+
+        guesses.forEach((guess, idx) => {
+            renderRow(guess, false, idx);
+        });
+
+        updateClueUI();
+
         if (window.innerWidth > 768) {
             searchInput.focus();
         }
     }
 }
 
-// 3. Search & Autocomplete
+// 4. Search, Autocomplete & Keyboard Navigation
 searchInput.addEventListener('input', function() {
-    let val = this.value;
+    let val = this.value.trim();
     autocompleteList.innerHTML = '';
+    activeAutocompleteIndex = -1;
+
     if (!val) {
+        autocompleteList.classList.add('hidden');
+        currentAutocompleteMatches = [];
+        return;
+    }
+
+    const query = val.toLowerCase();
+
+    // Ranked match: Ticker exact -> Ticker prefix -> Name prefix -> Substring
+    const matches = metricsData.filter(m => 
+        m.ticker.toLowerCase().includes(query) || 
+        m.company_name.toLowerCase().includes(query)
+    ).sort((a, b) => {
+        const aTicker = a.ticker.toLowerCase();
+        const bTicker = b.ticker.toLowerCase();
+        const aName = a.company_name.toLowerCase();
+        const bName = b.company_name.toLowerCase();
+
+        if (aTicker === query) return -1;
+        if (bTicker === query) return 1;
+        if (aTicker.startsWith(query) && !bTicker.startsWith(query)) return -1;
+        if (bTicker.startsWith(query) && !aTicker.startsWith(query)) return 1;
+        if (aName.startsWith(query) && !bName.startsWith(query)) return -1;
+        if (bName.startsWith(query) && !aName.startsWith(query)) return 1;
+        return 0;
+    }).slice(0, 5);
+
+    currentAutocompleteMatches = matches;
+
+    if (matches.length > 0) {
+        autocompleteList.classList.remove('hidden');
+    } else {
         autocompleteList.classList.add('hidden');
         return;
     }
 
-    const matches = metricsData.filter(m => 
-        m.company_name.toLowerCase().includes(val.toLowerCase()) || 
-        m.ticker.toLowerCase().includes(val.toLowerCase())
-    ).slice(0, 5); 
-
-    if(matches.length > 0) {
-        autocompleteList.classList.remove('hidden');
-    } else {
-        autocompleteList.classList.add('hidden');
-    }
-
-    matches.forEach(match => {
+    matches.forEach((match, index) => {
         let div = document.createElement('div');
+        div.setAttribute('data-index', index);
         div.innerHTML = `<strong>${match.ticker}</strong> - ${match.company_name}`;
         div.addEventListener('click', () => {
-            searchInput.value = '';
-            autocompleteList.innerHTML = '';
-            autocompleteList.classList.add('hidden');
-            handleGuess(match);
+            selectCandidate(match);
         });
         autocompleteList.appendChild(div);
     });
 });
 
-document.addEventListener('click', function (e) {
-    if (e.target !== searchInput) {
-        autocompleteList.innerHTML = '';
+searchInput.addEventListener('keydown', function(e) {
+    if (autocompleteList.classList.contains('hidden') || currentAutocompleteMatches.length === 0) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const val = this.value.trim().toUpperCase();
+            const exactMatch = metricsData.find(m => m.ticker === val);
+            if (exactMatch) selectCandidate(exactMatch);
+        }
+        return;
+    }
+
+    if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        activeAutocompleteIndex = (activeAutocompleteIndex + 1) % currentAutocompleteMatches.length;
+        updateAutocompleteHighlight();
+    } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        activeAutocompleteIndex = (activeAutocompleteIndex - 1 + currentAutocompleteMatches.length) % currentAutocompleteMatches.length;
+        updateAutocompleteHighlight();
+    } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (activeAutocompleteIndex >= 0 && activeAutocompleteIndex < currentAutocompleteMatches.length) {
+            selectCandidate(currentAutocompleteMatches[activeAutocompleteIndex]);
+        } else if (currentAutocompleteMatches.length > 0) {
+            selectCandidate(currentAutocompleteMatches[0]);
+        }
+    } else if (e.key === 'Escape') {
         autocompleteList.classList.add('hidden');
+        activeAutocompleteIndex = -1;
     }
 });
 
-// 4. Game Logic
+function updateAutocompleteHighlight() {
+    const items = autocompleteList.querySelectorAll('div');
+    items.forEach((item, idx) => {
+        if (idx === activeAutocompleteIndex) {
+            item.classList.add('autocomplete-active');
+            item.scrollIntoView({ block: 'nearest' });
+        } else {
+            item.classList.remove('autocomplete-active');
+        }
+    });
+}
+
+function selectCandidate(match) {
+    searchInput.value = '';
+    autocompleteList.innerHTML = '';
+    autocompleteList.classList.add('hidden');
+    activeAutocompleteIndex = -1;
+    currentAutocompleteMatches = [];
+    handleGuess(match);
+}
+
+document.addEventListener('click', function(e) {
+    if (e.target !== searchInput && !autocompleteList.contains(e.target)) {
+        autocompleteList.innerHTML = '';
+        autocompleteList.classList.add('hidden');
+        activeAutocompleteIndex = -1;
+    }
+});
+
+// 5. Toast Feedback for Blocked / Duplicate Guesses
+function showToast(message) {
+    let existingToast = document.querySelector('.toast-notification');
+    if (existingToast) existingToast.remove();
+
+    const toast = document.createElement('div');
+    toast.className = 'toast-notification';
+    toast.innerText = message;
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.classList.add('toast-show');
+    }, 10);
+
+    setTimeout(() => {
+        toast.classList.remove('toast-show');
+        setTimeout(() => toast.remove(), 300);
+    }, 2000);
+}
+
+// 6. Game Logic & Validation
 function handleGuess(guessData) {
     if (gameOver || guesses.length >= MAX_GUESSES) return;
 
+    // Prevent duplicate entries
+    const isDuplicate = guesses.some(g => g.ticker === guessData.ticker);
+    if (isDuplicate) {
+        showToast("⚠️ Company already audited!");
+        return;
+    }
+
     guesses.push(guessData);
-    saveState();
     renderRow(guessData, true, guesses.length - 1);
-    checkGameStatus();
-    updateClueUI();
+    
+    const isWin = guessData.ticker === targetMetric.ticker;
+    const isLoss = guesses.length >= MAX_GUESSES && !isWin;
+
+    if (isWin || isLoss) {
+        gameOver = true;
+        saveState();
+        endGame(isWin);
+    } else {
+        saveState();
+        updateClueUI();
+    }
 }
 
 function renderRow(guess, animate = false, rowIndex) {
@@ -158,16 +332,16 @@ function renderRow(guess, animate = false, rowIndex) {
     const isSectorMatch = guess.sector === targetMetric.sector;
     const sectorDiv = createCell({ text: guess.sector, cls: isSectorMatch ? 'correct' : 'wrong', arrow: '' }, animate, 1);
     
-    const mcapInfo = compareNumbers(guess.market_cap_cr, targetMetric.market_cap_cr);
+    const mcapInfo = compareNumbers(guess.market_cap_cr, targetMetric.market_cap_cr, 'mcap');
     const mcapDiv = createCell(mcapInfo, animate, 2);
 
-    const peInfo = compareNumbers(guess.pe_ratio, targetMetric.pe_ratio);
+    const peInfo = compareNumbers(guess.pe_ratio, targetMetric.pe_ratio, 'pe');
     const peDiv = createCell(peInfo, animate, 3);
 
-    const promInfo = compareNumbers(guess.promoter_pct, targetMetric.promoter_pct);
+    const promInfo = compareNumbers(guess.promoter_pct, targetMetric.promoter_pct, 'promoter');
     const promDiv = createCell(promInfo, animate, 4);
 
-    const debtInfo = compareNumbers(guess.debt_to_equity, targetMetric.debt_to_equity);
+    const debtInfo = compareNumbers(guess.debt_to_equity, targetMetric.debt_to_equity, 'debt');
     const debtDiv = createCell(debtInfo, animate, 5);
 
     row.append(tickerDiv, sectorDiv, mcapDiv, peDiv, promDiv, debtDiv);
@@ -192,51 +366,67 @@ function createCell(info, animate, delayIndex) {
     return div;
 }
 
-function compareNumbers(guessVal, targetVal) {
-    if (guessVal === targetVal) return { text: guessVal, cls: 'correct', arrow: '' };
-    
-    const isYellow = Math.abs(guessVal - targetVal) <= Math.abs(targetVal * 0.1);
+// 7. Valuation Comparison Engine (Zero Value & Absolute Threshold Handling)
+function compareNumbers(guessVal, targetVal, metricType) {
+    // Exact floating-point tolerance check
+    const diff = Math.abs(guessVal - targetVal);
+    if (diff < 0.001) {
+        return { text: guessVal, cls: 'correct', arrow: '' };
+    }
+
+    // Absolute fallback tolerances for zero-near values
+    let absoluteBuffer = 0;
+    if (metricType === 'debt') {
+        absoluteBuffer = 0.2;     // Within 0.2 D/E is yellow
+    } else if (metricType === 'promoter') {
+        absoluteBuffer = 5.0;     // Within 5.0% promoter holding is yellow
+    } else if (metricType === 'pe') {
+        absoluteBuffer = 3.0;     // Within 3.0 P/E points is yellow
+    }
+
+    const percentageTolerance = Math.abs(targetVal * 0.10);
+    const effectiveTolerance = Math.max(percentageTolerance, absoluteBuffer);
+
+    let isYellow = false;
+    // Suppress proximity if signs differ unless within absolute zero-buffer
+    if ((guessVal < 0 && targetVal > 0) || (guessVal > 0 && targetVal < 0)) {
+        isYellow = diff <= absoluteBuffer;
+    } else {
+        isYellow = diff <= effectiveTolerance;
+    }
+
     const cls = isYellow ? 'close' : 'wrong';
     const arrow = guessVal > targetVal ? '⬇️' : '⬆️';
     
     return { text: guessVal, cls: cls, arrow: arrow };
 }
 
-// 5. Progressive Un-Redaction
+// 8. Progressive Un-Redaction & Victory Reveal
 function updateClueUI() {
     const fails = guesses.length;
     
-    if (guesses.length > 0 && guesses[guesses.length - 1].ticker === targetMetric.ticker) {
-        return; 
-    }
-
-    if (fails === 0 || fails === 1) {
+    if (fails <= 1) {
         clueText.innerText = LOCKED_CLUE_TEXT;
     } else if (fails === 2) {
-        clueText.innerText = targetFact.clues[0]; 
+        clueText.innerText = targetFact.clues[0] || LOCKED_CLUE_TEXT;
     } else if (fails === 3) {
-        clueText.innerText = targetFact.clues[1]; 
-    } else if (fails === 4) {
-        clueText.innerText = targetFact.clues[2]; 
+        clueText.innerText = targetFact.clues[1] || targetFact.clues[0];
+    } else {
+        revealFullAuditorClue();
     }
 }
 
-// 6. Win / Loss Status
-function checkGameStatus() {
-    const lastGuess = guesses[guesses.length - 1];
-    const isWin = lastGuess.ticker === targetMetric.ticker;
-
-    if (isWin) {
-        endGame(true);
-    } else if (guesses.length >= MAX_GUESSES) {
-        endGame(false);
+function revealFullAuditorClue() {
+    if (targetFact && targetFact.clues && targetFact.clues.length > 0) {
+        clueText.innerText = targetFact.clues[targetFact.clues.length - 1];
     }
 }
 
+// 9. Win / Loss Status & Modal Flow
 function endGame(isWin) {
-    gameOver = true;
     searchInput.disabled = true;
     searchInput.placeholder = "Audit Complete.";
+    revealFullAuditorClue();
     
     setTimeout(() => {
         modalTitle.innerText = isWin ? "🎯 Target Identified" : "❌ Due Diligence Failed";
@@ -248,18 +438,25 @@ function endGame(isWin) {
         
         modalNextBtn.classList.remove('hidden');
         mainNextBtn.classList.remove('hidden');
-        modal.classList.remove('hidden');
-    }, 1200);
+        
+        if (!modalShown) {
+            modal.classList.remove('hidden');
+            modalShown = true;
+            saveState();
+        }
+    }, 1100);
 }
 
-// 7. Modals and Endless Progression
+// 10. Modal Navigation & Progression
 closeModalBtn.addEventListener('click', () => {
     modal.classList.add('hidden');
 });
 
 function goToNextPuzzle() {
-    currentPuzzleIndex++;
+    currentOrderIndex++;
     guesses = [];
+    gameOver = false;
+    modalShown = false;
     saveState();
     setupCurrentPuzzle();
 }
@@ -267,11 +464,13 @@ function goToNextPuzzle() {
 modalNextBtn.addEventListener('click', goToNextPuzzle);
 mainNextBtn.addEventListener('click', goToNextPuzzle);
 
-// 8. Local Storage
+// 11. Local Storage Persistence
 function saveState() {
     const state = {
-        puzzleIndex: currentPuzzleIndex,
-        guesses: guesses.map(g => g.ticker)
+        currentOrderIndex: currentOrderIndex,
+        guesses: guesses.map(g => g.ticker),
+        gameOver: gameOver,
+        modalShown: modalShown
     };
     localStorage.setItem('CArtle_State', JSON.stringify(state));
 }
@@ -280,15 +479,22 @@ function loadState() {
     const saved = localStorage.getItem('CArtle_State');
     if (!saved) return;
 
-    const state = JSON.parse(saved);
-    currentPuzzleIndex = state.puzzleIndex || 0;
-    
-    state.guesses.forEach(ticker => {
-        const fullGuess = metricsData.find(m => m.ticker === ticker);
-        if (fullGuess) {
-            guesses.push(fullGuess);
+    try {
+        const state = JSON.parse(saved);
+        currentOrderIndex = state.currentOrderIndex || 0;
+        gameOver = Boolean(state.gameOver);
+        modalShown = Boolean(state.modalShown);
+        
+        guesses = [];
+        if (Array.isArray(state.guesses)) {
+            state.guesses.forEach(ticker => {
+                const fullGuess = metricsData.find(m => m.ticker === ticker);
+                if (fullGuess) guesses.push(fullGuess);
+            });
         }
-    });
+    } catch (e) {
+        console.error("Failed to load saved state:", e);
+    }
 }
 
 window.onload = init;

@@ -60,7 +60,7 @@ body {
 
 .serif-title { font-family: 'Merriweather', serif; }
 
-/* Header matching Samvidhan */
+/* Header matching NYT/Samvidhan aesthetic */
 header {
     width: 100%;
     max-width: 600px;
@@ -134,7 +134,7 @@ main {
 
 .disclaimer { font-size: 0.75rem; color: var(--text-muted); text-align: center; }
 
-/* Search Bar (Samvidhan Input Wrapper style) */
+/* Search Bar */
 .input-wrapper {
     position: relative;
     width: 100%;
@@ -159,6 +159,7 @@ main {
 #search-input:focus { outline: none; }
 #search-input:disabled { opacity: 0.6; cursor: not-allowed; }
 
+/* Autocomplete Dropdown & Keyboard Active State */
 .autocomplete-items {
     position: absolute;
     top: calc(100% + 5px);
@@ -172,14 +173,50 @@ main {
     z-index: 10;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
+
 .autocomplete-items div {
     padding: 12px 16px;
     cursor: pointer;
     border-bottom: 1px solid var(--border-color);
     font-size: 0.9rem;
-    transition: background-color 0.1s;
+    transition: background-color 0.15s, border-left-color 0.15s;
+    border-left: 3px solid transparent;
 }
-.autocomplete-items div:hover { background-color: var(--hover-bg); }
+
+.autocomplete-items div:last-child {
+    border-bottom: none;
+}
+
+.autocomplete-items div:hover,
+.autocomplete-items div.autocomplete-active {
+    background-color: var(--hover-bg);
+    border-left: 3px solid var(--accent-gold);
+}
+
+/* Duplicate / Warning Toast Notification */
+.toast-notification {
+    position: fixed;
+    top: 25px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background-color: var(--card-bg);
+    color: var(--text-main);
+    padding: 10px 18px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 20px;
+    border: 1px solid var(--accent-gold);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    z-index: 150;
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.toast-notification.toast-show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
 
 /* Grid System */
 .grid-container { width: 100%; }
@@ -221,7 +258,7 @@ main {
     box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
-/* Result Colors (Overriding default cell styles) */
+/* Result Colors */
 .correct { background-color: var(--tile-correct) !important; color: var(--tile-text) !important; border-color: var(--tile-correct) !important; }
 .wrong { background-color: var(--tile-wrong) !important; color: var(--tile-text) !important; border-color: var(--tile-wrong) !important; }
 .close { background-color: var(--tile-close) !important; color: var(--tile-text) !important; border-color: var(--tile-close) !important; }
@@ -257,6 +294,7 @@ main {
     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     border-radius: 4px;
 }
+.clue-title { margin-bottom: 4px; }
 .clue-number { font-weight: 600; color: var(--text-main); margin-right: 6px; }
 #clue-text { margin-top: 5px; }
 
