@@ -17,12 +17,14 @@ themeToggleBtn.addEventListener("click", () => {
 
 // --- CORE GAME STATE & CONSTANTS ---
 const MAX_GUESSES = 5;
-const LOCKED_CLUE_TEXT = "🔒 Classified Auditor Notes: ██████████ ████████ █████████ ████. (Redactions will lift after your 2nd attempt).";
 
 let metricsData = [];
 let factsData = [];
+let openingCluesData = [];
+
 let targetMetric = null;
 let targetFact = null;
+let targetOpeningFact = null;
 
 let puzzleOrder = []; 
 let currentOrderIndex = 0; 
@@ -39,6 +41,7 @@ const searchInput = document.getElementById('search-input');
 const autocompleteList = document.getElementById('autocomplete-list');
 const gridRows = document.getElementById('grid-rows');
 const clueText = document.getElementById('clue-text');
+const clueTitleSpan = document.querySelector('.clue-number');
 const puzzleCounter = document.getElementById('puzzle-counter');
 
 // Modal & Navigation Elements
@@ -54,13 +57,15 @@ const closeModalBtn = document.getElementById('close-modal');
 async function init() {
     initTheme();
     try {
-        const [metricsRes, factsRes] = await Promise.all([
+        const [metricsRes, factsRes, openingRes] = await Promise.all([
             fetch('metrics.json'),
-            fetch('facts.json')
+            fetch('facts.json'),
+            fetch('opening_clues.json')
         ]);
         
         metricsData = await metricsRes.json();
         factsData = await factsRes.json();
+        openingCluesData = await openingRes.json();
         
         initPuzzleOrder();
         loadState();
@@ -111,6 +116,7 @@ function setupCurrentPuzzle() {
     const factIndex = puzzleOrder[currentOrderIndex];
     targetFact = factsData[factIndex];
     targetMetric = metricsData.find(m => m.ticker === targetFact.ticker);
+    targetOpeningFact = openingCluesData.find(c => c.ticker === targetFact.ticker);
 
     if (!targetMetric) {
         console.error(`Metric data missing for ticker: ${targetFact.ticker}`);
@@ -137,7 +143,7 @@ function setupCurrentPuzzle() {
             renderRow(guess, false, idx);
         });
 
-        // Show full clue payoff
+        // Show full forensic clue payoff
         revealFullAuditorClue();
     } else {
         gameOver = false;
@@ -275,7 +281,7 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// 5. Toast Feedback for Blocked / Duplicate Guesses
+// 5. Toast Feedback for Duplicate Guesses
 function showToast(message) {
     let existingToast = document.querySelector('.toast-notification');
     if (existingToast) existingToast.remove();
@@ -366,29 +372,29 @@ function createCell(info, animate, delayIndex) {
     return div;
 }
 
-// 7. Valuation Comparison Engine (Zero Value & Absolute Threshold Handling)
+// 7. Valuation Comparison Engine (Zero Value & Absolute Fallbacks)
 function compareNumbers(guessVal, targetVal, metricType) {
-    // Exact floating-point tolerance check
+    // Exact floating-point match check
     const diff = Math.abs(guessVal - targetVal);
     if (diff < 0.001) {
         return { text: guessVal, cls: 'correct', arrow: '' };
     }
 
-    // Absolute fallback tolerances for zero-near values
+    // Absolute tolerances for zero / near-zero targets
     let absoluteBuffer = 0;
     if (metricType === 'debt') {
-        absoluteBuffer = 0.2;     // Within 0.2 D/E is yellow
+        absoluteBuffer = 0.2;     // Within 0.2 D/E is close (yellow)
     } else if (metricType === 'promoter') {
-        absoluteBuffer = 5.0;     // Within 5.0% promoter holding is yellow
+        absoluteBuffer = 5.0;     // Within 5.0% promoter holding is close (yellow)
     } else if (metricType === 'pe') {
-        absoluteBuffer = 3.0;     // Within 3.0 P/E points is yellow
+        absoluteBuffer = 3.0;     // Within 3.0 P/E points is close (yellow)
     }
 
     const percentageTolerance = Math.abs(targetVal * 0.10);
     const effectiveTolerance = Math.max(percentageTolerance, absoluteBuffer);
 
     let isYellow = false;
-    // Suppress proximity if signs differ unless within absolute zero-buffer
+    // Suppress proximity if signs differ unless within absolute buffer
     if ((guessVal < 0 && targetVal > 0) || (guessVal > 0 && targetVal < 0)) {
         isYellow = diff <= absoluteBuffer;
     } else {
@@ -401,22 +407,34 @@ function compareNumbers(guessVal, targetVal, metricType) {
     return { text: guessVal, cls: cls, arrow: arrow };
 }
 
-// 8. Progressive Un-Redaction & Victory Reveal
+// 8. Progressive 5-Stage Clue Routing
 function updateClueUI() {
     const fails = guesses.length;
-    
-    if (fails <= 1) {
-        clueText.innerText = LOCKED_CLUE_TEXT;
+
+    if (fails === 0) {
+        // Turn 1 (Opening Screen): Sentence 1 (Redacted)
+        if (clueTitleSpan) clueTitleSpan.innerText = "Engagement Scope:";
+        clueText.innerText = targetOpeningFact ? targetOpeningFact.clues[0] : "Searching records...";
+    } else if (fails === 1) {
+        // Turn 2: Sentence 1 (Unredacted)
+        if (clueTitleSpan) clueTitleSpan.innerText = "Engagement Scope:";
+        clueText.innerText = targetOpeningFact ? targetOpeningFact.clues[1] : targetFact.clues[0];
     } else if (fails === 2) {
-        clueText.innerText = targetFact.clues[0] || LOCKED_CLUE_TEXT;
+        // Turn 3: Sentence 2 (Heavy Redaction)
+        if (clueTitleSpan) clueTitleSpan.innerText = "Notes to Accounts:";
+        clueText.innerText = targetFact.clues[0];
     } else if (fails === 3) {
-        clueText.innerText = targetFact.clues[1] || targetFact.clues[0];
+        // Turn 4: Sentence 2 (Moderate Redaction)
+        if (clueTitleSpan) clueTitleSpan.innerText = "Notes to Accounts:";
+        clueText.innerText = targetFact.clues[1];
     } else {
+        // Turn 5 / Win: Sentence 2 (Fully Revealed)
         revealFullAuditorClue();
     }
 }
 
 function revealFullAuditorClue() {
+    if (clueTitleSpan) clueTitleSpan.innerText = "Notes to Accounts:";
     if (targetFact && targetFact.clues && targetFact.clues.length > 0) {
         clueText.innerText = targetFact.clues[targetFact.clues.length - 1];
     }
