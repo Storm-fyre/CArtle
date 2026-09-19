@@ -32,6 +32,9 @@ let guesses = [];
 let gameOver = false;
 let modalShown = false;
 
+// Mode State: 'analyst' (guided clues) vs 'fundamentalist' (metrics only)
+let gameMode = localStorage.getItem('CArtle_Mode') || null;
+
 // Autocomplete Keyboard Navigation State
 let activeAutocompleteIndex = -1;
 let currentAutocompleteMatches = [];
@@ -40,9 +43,17 @@ let currentAutocompleteMatches = [];
 const searchInput = document.getElementById('search-input');
 const autocompleteList = document.getElementById('autocomplete-list');
 const gridRows = document.getElementById('grid-rows');
+const clueContainer = document.getElementById('clue-container');
 const clueText = document.getElementById('clue-text');
 const clueTitleSpan = document.querySelector('.clue-number');
 const puzzleCounter = document.getElementById('puzzle-counter');
+
+// Mode Switch & Welcome Elements
+const modeToggleBtn = document.getElementById('mode-toggle-btn');
+const modeModal = document.getElementById('mode-modal');
+const closeModeModalBtn = document.getElementById('close-mode-modal');
+const btnModeAnalyst = document.getElementById('btn-mode-analyst');
+const btnModeFundamentalist = document.getElementById('btn-mode-fundamentalist');
 
 // Modal & Navigation Elements
 const modal = document.getElementById('modal');
@@ -69,6 +80,15 @@ async function init() {
         
         initPuzzleOrder();
         loadState();
+
+        // Check if mode was previously chosen, otherwise present mode selection modal
+        if (!gameMode) {
+            modeModal.classList.remove('hidden');
+            setMode('analyst', false); // Default selection preview
+        } else {
+            applyModeUI(gameMode);
+        }
+
         setupCurrentPuzzle();
         
     } catch (error) {
@@ -77,7 +97,51 @@ async function init() {
     }
 }
 
-// 2. Randomized Endless Order Management (No Predictable Repeating Sequences)
+// 2. Mode Management Logic
+function setMode(mode, save = true) {
+    gameMode = mode;
+    if (save) {
+        localStorage.setItem('CArtle_Mode', mode);
+        modeModal.classList.add('hidden');
+    }
+    applyModeUI(mode);
+    updateClueUI();
+}
+
+function applyModeUI(mode) {
+    if (mode === 'fundamentalist') {
+        modeToggleBtn.textContent = '📈 Fundamentalist';
+        btnModeFundamentalist.classList.add('active');
+        btnModeAnalyst.classList.remove('active');
+    } else {
+        modeToggleBtn.textContent = '🎓 Analyst';
+        btnModeAnalyst.classList.add('active');
+        btnModeFundamentalist.classList.remove('active');
+    }
+}
+
+// Mode Selection Event Listeners
+modeToggleBtn.addEventListener('click', () => {
+    modeModal.classList.remove('hidden');
+});
+
+closeModeModalBtn.addEventListener('click', () => {
+    if (!gameMode) {
+        setMode('analyst', true); // Fallback to analyst if dismissed without selection
+    } else {
+        modeModal.classList.add('hidden');
+    }
+});
+
+btnModeAnalyst.addEventListener('click', () => {
+    setMode('analyst', true);
+});
+
+btnModeFundamentalist.addEventListener('click', () => {
+    setMode('fundamentalist', true);
+});
+
+// 3. Randomized Endless Order Management
 function initPuzzleOrder() {
     const savedOrder = localStorage.getItem('CArtle_Order');
     if (savedOrder) {
@@ -104,7 +168,7 @@ function generateNewShuffle() {
     localStorage.setItem('CArtle_Order', JSON.stringify(puzzleOrder));
 }
 
-// 3. Setup Current Puzzle
+// 4. Setup Current Puzzle
 function setupCurrentPuzzle() {
     if (currentOrderIndex >= puzzleOrder.length) {
         generateNewShuffle();
@@ -143,7 +207,8 @@ function setupCurrentPuzzle() {
             renderRow(guess, false, idx);
         });
 
-        // Show full forensic clue payoff
+        // Show full clue payoff on complete, even in fundamentalist mode
+        clueContainer.classList.remove('hidden');
         revealFullAuditorClue();
     } else {
         gameOver = false;
@@ -167,7 +232,7 @@ function setupCurrentPuzzle() {
     }
 }
 
-// 4. Search, Autocomplete & Keyboard Navigation
+// 5. Search, Autocomplete & Keyboard Navigation
 searchInput.addEventListener('input', function() {
     let val = this.value.trim();
     autocompleteList.innerHTML = '';
@@ -281,7 +346,7 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// 5. Toast Feedback for Duplicate Guesses
+// 6. Toast Feedback for Duplicate Guesses
 function showToast(message) {
     let existingToast = document.querySelector('.toast-notification');
     if (existingToast) existingToast.remove();
@@ -301,7 +366,7 @@ function showToast(message) {
     }, 2000);
 }
 
-// 6. Game Logic & Validation
+// 7. Game Logic & Validation
 function handleGuess(guessData) {
     if (gameOver || guesses.length >= MAX_GUESSES) return;
 
@@ -372,7 +437,7 @@ function createCell(info, animate, delayIndex) {
     return div;
 }
 
-// 7. Valuation Comparison Engine (Zero Value & Absolute Fallbacks)
+// 8. Valuation Comparison Engine
 function compareNumbers(guessVal, targetVal, metricType) {
     // Exact floating-point match check
     const diff = Math.abs(guessVal - targetVal);
@@ -407,8 +472,21 @@ function compareNumbers(guessVal, targetVal, metricType) {
     return { text: guessVal, cls: cls, arrow: arrow };
 }
 
-// 8. Progressive 5-Stage Clue Routing
+// 9. Clue Routing & Mode Filtering
 function updateClueUI() {
+    // If Pure Fundamentalist mode is active, completely hide text clues during play
+    if (gameMode === 'fundamentalist') {
+        if (gameOver) {
+            clueContainer.classList.remove('hidden');
+            revealFullAuditorClue();
+        } else {
+            clueContainer.classList.add('hidden');
+        }
+        return;
+    }
+
+    // Analyst Mode: 5-Stage Progressive Clues
+    clueContainer.classList.remove('hidden');
     const fails = guesses.length;
 
     if (fails === 0) {
@@ -440,10 +518,13 @@ function revealFullAuditorClue() {
     }
 }
 
-// 9. Win / Loss Status & Modal Flow
+// 10. Win / Loss Status & Modal Flow
 function endGame(isWin) {
     searchInput.disabled = true;
     searchInput.placeholder = "Audit Complete.";
+    
+    // In both modes, unhide and reveal full trivia on audit completion
+    clueContainer.classList.remove('hidden');
     revealFullAuditorClue();
     
     setTimeout(() => {
@@ -465,7 +546,7 @@ function endGame(isWin) {
     }, 1100);
 }
 
-// 10. Modal Navigation & Progression
+// 11. Modal Navigation & Progression
 closeModalBtn.addEventListener('click', () => {
     modal.classList.add('hidden');
 });
@@ -482,7 +563,7 @@ function goToNextPuzzle() {
 modalNextBtn.addEventListener('click', goToNextPuzzle);
 mainNextBtn.addEventListener('click', goToNextPuzzle);
 
-// 11. Local Storage Persistence
+// 12. Local Storage Persistence
 function saveState() {
     const state = {
         currentOrderIndex: currentOrderIndex,

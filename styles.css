@@ -81,6 +81,7 @@ header {
     display: flex;
     justify-content: center;
     align-items: center;
+    pointer-events: none;
 }
 
 .title-container {
@@ -88,6 +89,7 @@ header {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    pointer-events: auto;
 }
 
 .title-container h1 {
@@ -107,6 +109,7 @@ header {
     margin-top: 2px;
 }
 
+/* Header Buttons */
 .icon-btn {
     background-color: transparent;
     border: 1px solid var(--border-color);
@@ -122,6 +125,26 @@ header {
     transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 .icon-btn:hover { background-color: var(--hover-bg); border-color: var(--text-muted); }
+
+.text-pill-btn {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 6px 12px;
+    color: var(--text-main);
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+.text-pill-btn:hover {
+    background-color: var(--hover-bg);
+    border-color: var(--accent-gold);
+}
 
 main {
     width: 100%;
@@ -293,6 +316,7 @@ main {
     line-height: 1.5;
     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     border-radius: 4px;
+    transition: opacity 0.3s ease;
 }
 .clue-title { margin-bottom: 4px; }
 .clue-number { font-weight: 600; color: var(--text-main); margin-right: 6px; }
@@ -358,4 +382,82 @@ main {
     font-size: 1.1rem;
     margin-bottom: 15px;
     border-radius: 4px;
+}
+
+/* Mode Selection Modal & Dual Interactive Cards */
+.mode-modal-content {
+    max-width: 520px;
+    padding: 30px 24px 25px;
+}
+
+.mode-selection-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.mode-card {
+    background-color: var(--bg-color);
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    padding: 16px 14px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 8px;
+    color: var(--text-main);
+    font-family: 'Inter', sans-serif;
+    transition: all 0.2s ease;
+    text-align: left;
+}
+
+.mode-card:hover {
+    border-color: var(--accent-gold);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.mode-card.active {
+    border-color: var(--accent-gold);
+    background-color: var(--card-bg);
+    box-shadow: 0 0 0 1px var(--accent-gold);
+}
+
+.mode-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.mode-icon {
+    font-size: 1.25rem;
+}
+
+.mode-title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text-main);
+}
+
+.mode-statement {
+    font-size: 0.82rem;
+    font-weight: 600;
+    font-style: italic;
+    color: var(--accent-gold);
+    line-height: 1.35;
+}
+
+.mode-desc {
+    font-size: 0.74rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+/* Mobile Responsiveness for Mode Selector */
+@media (max-width: 540px) {
+    .mode-selection-container {
+        grid-template-columns: 1fr;
+    }
 }
