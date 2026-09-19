@@ -84,7 +84,7 @@ async function init() {
         // Check if mode was previously chosen, otherwise present mode selection modal
         if (!gameMode) {
             modeModal.classList.remove('hidden');
-            setMode('analyst', false); // Default selection preview
+            setMode('fundamentalist', false); // Default selection preview
         } else {
             applyModeUI(gameMode);
         }
@@ -127,7 +127,7 @@ modeToggleBtn.addEventListener('click', () => {
 
 closeModeModalBtn.addEventListener('click', () => {
     if (!gameMode) {
-        setMode('analyst', true); // Fallback to analyst if dismissed without selection
+        setMode('fundamentalist', true); // Fallback to fundamentalist if dismissed without selection
     } else {
         modeModal.classList.add('hidden');
     }
