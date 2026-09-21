@@ -1,4 +1,4 @@
-// --- THEME TOGGLE LOGIC ---
+// --- THEME MANAGEMENT ---
 const themeToggleBtn = document.getElementById("theme-toggle");
 
 function initTheme() {
@@ -18,28 +18,34 @@ themeToggleBtn.addEventListener("click", () => {
 // --- CORE GAME STATE & CONSTANTS ---
 const MAX_GUESSES = 5;
 
+// Active Market: 'india' (Dalal St) vs 'global' (Wall Street)
+let currentMarket = localStorage.getItem('CArtle_Market') || 'india';
+
+// Difficulty Mode: 'fundamentalist' (default, metrics only) vs 'analyst' (guided clues)
+let gameMode = localStorage.getItem('CArtle_Mode') || 'fundamentalist';
+
+// Data stores for active market
 let metricsData = [];
 let factsData = [];
 let openingCluesData = [];
 
+// Targets
 let targetMetric = null;
 let targetFact = null;
 let targetOpeningFact = null;
 
-let puzzleOrder = []; 
-let currentOrderIndex = 0; 
+// Progression
+let puzzleOrder = [];
+let currentOrderIndex = 0;
 let guesses = [];
 let gameOver = false;
 let modalShown = false;
-
-// Mode State: 'analyst' (guided clues) vs 'fundamentalist' (metrics only)
-let gameMode = localStorage.getItem('CArtle_Mode') || null;
 
 // Autocomplete Keyboard Navigation State
 let activeAutocompleteIndex = -1;
 let currentAutocompleteMatches = [];
 
-// DOM Elements
+// --- DOM ELEMENTS ---
 const searchInput = document.getElementById('search-input');
 const autocompleteList = document.getElementById('autocomplete-list');
 const gridRows = document.getElementById('grid-rows');
@@ -48,56 +54,122 @@ const clueText = document.getElementById('clue-text');
 const clueTitleSpan = document.querySelector('.clue-number');
 const puzzleCounter = document.getElementById('puzzle-counter');
 
-// Mode Switch & Welcome Elements
+// Header Column Elements for Dynamic Units
+const colMcap = document.getElementById('col-mcap');
+const colPromoter = document.getElementById('col-promoter');
+
+// Buttons & Actions
+const marketToggleBtn = document.getElementById('market-toggle-btn');
+const concedeBtn = document.getElementById('concede-btn');
+const mainNextBtn = document.getElementById('main-next-btn');
+
+// Mode Selection Elements
 const modeToggleBtn = document.getElementById('mode-toggle-btn');
 const modeModal = document.getElementById('mode-modal');
 const closeModeModalBtn = document.getElementById('close-mode-modal');
 const btnModeAnalyst = document.getElementById('btn-mode-analyst');
 const btnModeFundamentalist = document.getElementById('btn-mode-fundamentalist');
 
-// Modal & Navigation Elements
+// Post-Game Modal Elements
 const modal = document.getElementById('modal');
 const modalTitle = document.getElementById('modal-title');
 const modalMessage = document.getElementById('modal-message');
 const targetCompanyName = document.getElementById('target-company-name');
+const targetStatsCard = document.getElementById('target-stats-card');
 const modalNextBtn = document.getElementById('modal-next-btn');
-const mainNextBtn = document.getElementById('main-next-btn');
 const closeModalBtn = document.getElementById('close-modal');
 
-// 1. Initialize Game
+// --- 1. INITIALIZATION ---
 async function init() {
     initTheme();
-    try {
-        const [metricsRes, factsRes, openingRes] = await Promise.all([
-            fetch('metrics.json'),
-            fetch('facts.json'),
-            fetch('opening_clues.json')
-        ]);
-        
-        metricsData = await metricsRes.json();
-        factsData = await factsRes.json();
-        openingCluesData = await openingRes.json();
-        
-        initPuzzleOrder();
-        loadState();
+    applyModeUI(gameMode);
+    updateHeaderLabels();
 
-        // Check if mode was previously chosen, otherwise present mode selection modal
-        if (!gameMode) {
-            modeModal.classList.remove('hidden');
-            setMode('fundamentalist', false); // Default selection preview
-        } else {
-            applyModeUI(gameMode);
-        }
+    const success = await loadMarketData(currentMarket);
+    if (!success) {
+        // Fallback to Indian market if Global files aren't ready yet
+        currentMarket = 'india';
+        localStorage.setItem('CArtle_Market', 'india');
+        updateHeaderLabels();
+        await loadMarketData('india');
+    }
 
-        setupCurrentPuzzle();
-        
-    } catch (error) {
-        puzzleCounter.innerText = "Error loading data.";
-        console.error("Initialization error:", error);
+    initPuzzleOrder();
+    loadState();
+    setupCurrentPuzzle();
+
+    // Check if mode was explicitly set previously, else offer modal
+    if (!localStorage.getItem('CArtle_Mode')) {
+        modeModal.classList.remove('hidden');
+        setMode('fundamentalist', false);
     }
 }
 
-// 2. Mode Management Logic
+// --- 2. MARKET DATA LOADER & SWITCHER ---
+async function loadMarketData(market) {
+    const isGlobal = market === 'global';
+    const metricsFile = isGlobal ? 'global_metrics.json' : 'metrics.json';
+    const factsFile = isGlobal ? 'global_facts.json' : 'facts.json';
+    const openingFile = isGlobal ? 'global_opening_clues.json' : 'opening_clues.json';
+
+    try {
+        const [mRes, fRes, oRes] = await Promise.all([
+            fetch(metricsFile),
+            fetch(factsFile),
+            fetch(openingFile)
+        ]);
+
+        if (!mRes.ok || !fRes.ok || !oRes.ok) {
+            throw new Error(`Data files not found for ${market}`);
+        }
+
+        metricsData = await mRes.json();
+        factsData = await fRes.json();
+        openingCluesData = await oRes.json();
+        return true;
+    } catch (err) {
+        console.warn(`Failed loading market '${market}':`, err);
+        return false;
+    }
+}
+
+function updateHeaderLabels() {
+    if (currentMarket === 'global') {
+        marketToggleBtn.textContent = '🌎 Global';
+        if (colMcap) colMcap.textContent = 'MC($B)';
+        if (colPromoter) colPromoter.textContent = 'INSIDER%';
+    } else {
+        marketToggleBtn.textContent = '🇮🇳 Dalal St';
+        if (colMcap) colMcap.textContent = 'MC(Cr)';
+        if (colPromoter) colPromoter.textContent = 'PROM%';
+    }
+}
+
+marketToggleBtn.addEventListener('click', async () => {
+    const nextMarket = currentMarket === 'india' ? 'global' : 'india';
+    
+    // Save current market state before switching
+    saveState();
+
+    const success = await loadMarketData(nextMarket);
+    if (!success) {
+        showToast("⚠️ Global dataset files not yet found. Reverting to Dalal St.");
+        return;
+    }
+
+    currentMarket = nextMarket;
+    localStorage.setItem('CArtle_Market', currentMarket);
+    updateHeaderLabels();
+
+    // Initialize market-specific sequence & restore state
+    initPuzzleOrder();
+    loadState();
+    setupCurrentPuzzle();
+
+    showToast(`Switched to ${currentMarket === 'global' ? 'Global / Wall St' : 'Dalal St'} market!`);
+});
+
+// --- 3. MODE MANAGEMENT ---
 function setMode(mode, save = true) {
     gameMode = mode;
     if (save) {
@@ -120,30 +192,29 @@ function applyModeUI(mode) {
     }
 }
 
-// Mode Selection Event Listeners
-modeToggleBtn.addEventListener('click', () => {
-    modeModal.classList.remove('hidden');
-});
-
+modeToggleBtn.addEventListener('click', () => modeModal.classList.remove('hidden'));
 closeModeModalBtn.addEventListener('click', () => {
-    if (!gameMode) {
-        setMode('fundamentalist', true); // Fallback to fundamentalist if dismissed without selection
+    if (!localStorage.getItem('CArtle_Mode')) {
+        setMode('fundamentalist', true);
     } else {
         modeModal.classList.add('hidden');
     }
 });
 
-btnModeAnalyst.addEventListener('click', () => {
-    setMode('analyst', true);
-});
+btnModeAnalyst.addEventListener('click', () => setMode('analyst', true));
+btnModeFundamentalist.addEventListener('click', () => setMode('fundamentalist', true));
 
-btnModeFundamentalist.addEventListener('click', () => {
-    setMode('fundamentalist', true);
-});
+// --- 4. RANDOMIZED PUZZLE SEQUENCING ---
+function getOrderStorageKey() {
+    return `CArtle_Order_${currentMarket}`;
+}
 
-// 3. Randomized Endless Order Management
+function getStateStorageKey() {
+    return `CArtle_State_${currentMarket}`;
+}
+
 function initPuzzleOrder() {
-    const savedOrder = localStorage.getItem('CArtle_Order');
+    const savedOrder = localStorage.getItem(getOrderStorageKey());
     if (savedOrder) {
         try {
             const parsed = JSON.parse(savedOrder);
@@ -152,7 +223,7 @@ function initPuzzleOrder() {
                 return;
             }
         } catch (e) {
-            console.error("Could not parse saved puzzle order, generating fresh sequence.", e);
+            console.error("Order parse error, generating fresh sequence.", e);
         }
     }
     generateNewShuffle();
@@ -160,22 +231,24 @@ function initPuzzleOrder() {
 
 function generateNewShuffle() {
     puzzleOrder = factsData.map((_, i) => i);
-    // Fisher-Yates Shuffle
     for (let i = puzzleOrder.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [puzzleOrder[i], puzzleOrder[j]] = [puzzleOrder[j], puzzleOrder[i]];
     }
-    localStorage.setItem('CArtle_Order', JSON.stringify(puzzleOrder));
+    localStorage.setItem(getOrderStorageKey(), JSON.stringify(puzzleOrder));
 }
 
-// 4. Setup Current Puzzle
+// --- 5. SETUP CURRENT PUZZLE ---
 function setupCurrentPuzzle() {
+    if (!factsData || factsData.length === 0) return;
+
     if (currentOrderIndex >= puzzleOrder.length) {
         generateNewShuffle();
         currentOrderIndex = 0;
     }
 
-    puzzleCounter.innerText = `Puzzle ${currentOrderIndex + 1}`;
+    const marketLabel = currentMarket === 'global' ? 'GLOBAL' : 'DALAL STREET';
+    puzzleCounter.innerText = `Puzzle ${currentOrderIndex + 1} • ${marketLabel}`;
     
     const factIndex = puzzleOrder[currentOrderIndex];
     targetFact = factsData[factIndex];
@@ -191,8 +264,9 @@ function setupCurrentPuzzle() {
     gridRows.innerHTML = '';
     autocompleteList.innerHTML = '';
     autocompleteList.classList.add('hidden');
+    targetStatsCard.classList.add('hidden');
+    targetStatsCard.innerHTML = '';
     
-    // Check if current puzzle is already completed
     const isCompleted = gameOver || guesses.length >= MAX_GUESSES || (guesses.length > 0 && guesses[guesses.length - 1].ticker === targetMetric.ticker);
 
     if (isCompleted) {
@@ -201,15 +275,19 @@ function setupCurrentPuzzle() {
         searchInput.placeholder = "Audit Complete.";
         mainNextBtn.classList.remove('hidden');
         modalNextBtn.classList.remove('hidden');
+        concedeBtn.classList.add('hidden');
 
-        // Render previous guesses statically without animation
         guesses.forEach((guess, idx) => {
             renderRow(guess, false, idx);
         });
 
-        // Show full clue payoff on complete, even in fundamentalist mode
-        clueContainer.classList.remove('hidden');
-        revealFullAuditorClue();
+        // Strict Clue Rule: Only Analyst mode sees clues post-game
+        if (gameMode === 'analyst') {
+            clueContainer.classList.remove('hidden');
+            revealFullAuditorClue();
+        } else {
+            clueContainer.classList.add('hidden');
+        }
     } else {
         gameOver = false;
         modalShown = false;
@@ -219,6 +297,7 @@ function setupCurrentPuzzle() {
         modal.classList.add('hidden');
         mainNextBtn.classList.add('hidden');
         modalNextBtn.classList.add('hidden');
+        concedeBtn.classList.remove('hidden');
 
         guesses.forEach((guess, idx) => {
             renderRow(guess, false, idx);
@@ -227,12 +306,12 @@ function setupCurrentPuzzle() {
         updateClueUI();
 
         if (window.innerWidth > 768) {
-            searchInput.focus();
+            setTimeout(() => searchInput.focus(), 50);
         }
     }
 }
 
-// 5. Search, Autocomplete & Keyboard Navigation
+// --- 6. SEARCH, AUTOCOMPLETE & KEYBOARD NAVIGATION ---
 searchInput.addEventListener('input', function() {
     let val = this.value.trim();
     autocompleteList.innerHTML = '';
@@ -246,7 +325,6 @@ searchInput.addEventListener('input', function() {
 
     const query = val.toLowerCase();
 
-    // Ranked match: Ticker exact -> Ticker prefix -> Name prefix -> Substring
     const matches = metricsData.filter(m => 
         m.ticker.toLowerCase().includes(query) || 
         m.company_name.toLowerCase().includes(query)
@@ -278,9 +356,7 @@ searchInput.addEventListener('input', function() {
         let div = document.createElement('div');
         div.setAttribute('data-index', index);
         div.innerHTML = `<strong>${match.ticker}</strong> - ${match.company_name}`;
-        div.addEventListener('click', () => {
-            selectCandidate(match);
-        });
+        div.addEventListener('click', () => selectCandidate(match));
         autocompleteList.appendChild(div);
     });
 });
@@ -346,7 +422,7 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// 6. Toast Feedback for Duplicate Guesses
+// Toast notification helper
 function showToast(message) {
     let existingToast = document.querySelector('.toast-notification');
     if (existingToast) existingToast.remove();
@@ -356,21 +432,25 @@ function showToast(message) {
     toast.innerText = message;
     document.body.appendChild(toast);
 
-    setTimeout(() => {
-        toast.classList.add('toast-show');
-    }, 10);
-
+    setTimeout(() => toast.classList.add('toast-show'), 10);
     setTimeout(() => {
         toast.classList.remove('toast-show');
         setTimeout(() => toast.remove(), 300);
     }, 2000);
 }
 
-// 7. Game Logic & Validation
+// --- 7. GUESS HANDLING & ROW RENDERING ---
+function getMcap(item) {
+    return item.market_cap_usd_b !== undefined ? item.market_cap_usd_b : item.market_cap_cr;
+}
+
+function getOwnership(item) {
+    return item.insider_pct !== undefined ? item.insider_pct : item.promoter_pct;
+}
+
 function handleGuess(guessData) {
     if (gameOver || guesses.length >= MAX_GUESSES) return;
 
-    // Prevent duplicate entries
     const isDuplicate = guesses.some(g => g.ticker === guessData.ticker);
     if (isDuplicate) {
         showToast("⚠️ Company already audited!");
@@ -403,13 +483,13 @@ function renderRow(guess, animate = false, rowIndex) {
     const isSectorMatch = guess.sector === targetMetric.sector;
     const sectorDiv = createCell({ text: guess.sector, cls: isSectorMatch ? 'correct' : 'wrong', arrow: '' }, animate, 1);
     
-    const mcapInfo = compareNumbers(guess.market_cap_cr, targetMetric.market_cap_cr, 'mcap');
+    const mcapInfo = compareNumbers(getMcap(guess), getMcap(targetMetric), 'mcap');
     const mcapDiv = createCell(mcapInfo, animate, 2);
 
     const peInfo = compareNumbers(guess.pe_ratio, targetMetric.pe_ratio, 'pe');
     const peDiv = createCell(peInfo, animate, 3);
 
-    const promInfo = compareNumbers(guess.promoter_pct, targetMetric.promoter_pct, 'promoter');
+    const promInfo = compareNumbers(getOwnership(guess), getOwnership(targetMetric), 'promoter');
     const promDiv = createCell(promInfo, animate, 4);
 
     const debtInfo = compareNumbers(guess.debt_to_equity, targetMetric.debt_to_equity, 'debt');
@@ -422,6 +502,7 @@ function renderRow(guess, animate = false, rowIndex) {
 function createCell(info, animate, delayIndex) {
     const div = document.createElement('div');
     div.className = info.cls;
+    if (info.isLoss) div.classList.add('loss-cell');
     
     if (info.arrow) {
         div.innerHTML = `<span class="arrow">${info.arrow}</span><span>${info.text}</span>`;
@@ -437,163 +518,72 @@ function createCell(info, animate, delayIndex) {
     return div;
 }
 
-// 8. Valuation Comparison Engine
+// --- 8. VALUATION COMPARISON ENGINE (SMART DIRECTION ARROWS & LOSS LOGIC) ---
 function compareNumbers(guessVal, targetVal, metricType) {
-    // Exact floating-point match check
-    const diff = Math.abs(guessVal - targetVal);
-    if (diff < 0.001) {
-        return { text: guessVal, cls: 'correct', arrow: '' };
+    const isGuessLoss = metricType === 'pe' && guessVal < 0;
+    const isTargetLoss = metricType === 'pe' && targetVal < 0;
+
+    let displayText = guessVal;
+    if (isGuessLoss) displayText = 'N/A (Loss)';
+
+    // Exact Match
+    if (Math.abs(guessVal - targetVal) < 0.001) {
+        return { text: displayText, cls: 'correct', arrow: '', isLoss: isGuessLoss };
     }
 
-    // Absolute tolerances for zero / near-zero targets
+    // Absolute Tolerances for near-zero thresholds
     let absoluteBuffer = 0;
-    if (metricType === 'debt') {
-        absoluteBuffer = 0.2;     // Within 0.2 D/E is close (yellow)
-    } else if (metricType === 'promoter') {
-        absoluteBuffer = 5.0;     // Within 5.0% promoter holding is close (yellow)
-    } else if (metricType === 'pe') {
-        absoluteBuffer = 3.0;     // Within 3.0 P/E points is close (yellow)
-    }
+    if (metricType === 'debt') absoluteBuffer = 0.2;
+    else if (metricType === 'promoter') absoluteBuffer = 5.0;
+    else if (metricType === 'pe') absoluteBuffer = 3.0;
 
     const percentageTolerance = Math.abs(targetVal * 0.10);
     const effectiveTolerance = Math.max(percentageTolerance, absoluteBuffer);
+    const diff = Math.abs(guessVal - targetVal);
 
     let isYellow = false;
-    // Suppress proximity if signs differ unless within absolute buffer
     if ((guessVal < 0 && targetVal > 0) || (guessVal > 0 && targetVal < 0)) {
         isYellow = diff <= absoluteBuffer;
     } else {
         isYellow = diff <= effectiveTolerance;
     }
 
-    const cls = isYellow ? 'close' : 'wrong';
-    const arrow = guessVal > targetVal ? '⬇️' : '⬆️';
-    
-    return { text: guessVal, cls: cls, arrow: arrow };
+    // Directional Arrow Logic
+    let arrow = '';
+    if (isGuessLoss && !isTargetLoss) {
+        // Target is profitable, guess is loss-making -> target is higher
+        arrow = '⬆️';
+    } else if (!isGuessLoss && isTargetLoss) {
+        // Target is loss-making, guess is profitable -> target is lower
+        arrow = '⬇️';
+    } else {
+        arrow = guessVal > targetVal ? '⬇️' : '⬆️';
+    }
+
+    return {
+        text: displayText,
+        cls: isYellow ? 'close' : 'wrong',
+        arrow: arrow,
+        isLoss: isGuessLoss
+    };
 }
 
-// 9. Clue Routing & Mode Filtering
+// --- 9. CONCEDE AUDIT LINK ---
+concedeBtn.addEventListener('click', () => {
+    if (gameOver || guesses.length >= MAX_GUESSES) return;
+    
+    if (confirm("Concede this audit and issue a Disclaimer of Opinion?")) {
+        gameOver = true;
+        saveState();
+        endGame(false, true);
+    }
+});
+
+// --- 10. CLUE ROUTING & STRICT FUNDAMENTALIST SUPPRESSION ---
 function updateClueUI() {
-    // If Pure Fundamentalist mode is active, completely hide text clues during play
     if (gameMode === 'fundamentalist') {
-        if (gameOver) {
-            clueContainer.classList.remove('hidden');
-            revealFullAuditorClue();
-        } else {
-            clueContainer.classList.add('hidden');
-        }
+        clueContainer.classList.add('hidden');
         return;
     }
 
-    // Analyst Mode: 5-Stage Progressive Clues
-    clueContainer.classList.remove('hidden');
-    const fails = guesses.length;
-
-    if (fails === 0) {
-        // Turn 1 (Opening Screen): Sentence 1 (Redacted)
-        if (clueTitleSpan) clueTitleSpan.innerText = "Engagement Scope:";
-        clueText.innerText = targetOpeningFact ? targetOpeningFact.clues[0] : "Searching records...";
-    } else if (fails === 1) {
-        // Turn 2: Sentence 1 (Unredacted)
-        if (clueTitleSpan) clueTitleSpan.innerText = "Engagement Scope:";
-        clueText.innerText = targetOpeningFact ? targetOpeningFact.clues[1] : targetFact.clues[0];
-    } else if (fails === 2) {
-        // Turn 3: Sentence 2 (Heavy Redaction)
-        if (clueTitleSpan) clueTitleSpan.innerText = "Notes to Accounts:";
-        clueText.innerText = targetFact.clues[0];
-    } else if (fails === 3) {
-        // Turn 4: Sentence 2 (Moderate Redaction)
-        if (clueTitleSpan) clueTitleSpan.innerText = "Notes to Accounts:";
-        clueText.innerText = targetFact.clues[1];
-    } else {
-        // Turn 5 / Win: Sentence 2 (Fully Revealed)
-        revealFullAuditorClue();
-    }
-}
-
-function revealFullAuditorClue() {
-    if (clueTitleSpan) clueTitleSpan.innerText = "Notes to Accounts:";
-    if (targetFact && targetFact.clues && targetFact.clues.length > 0) {
-        clueText.innerText = targetFact.clues[targetFact.clues.length - 1];
-    }
-}
-
-// 10. Win / Loss Status & Modal Flow
-function endGame(isWin) {
-    searchInput.disabled = true;
-    searchInput.placeholder = "Audit Complete.";
-    
-    // In both modes, unhide and reveal full trivia on audit completion
-    clueContainer.classList.remove('hidden');
-    revealFullAuditorClue();
-    
-    setTimeout(() => {
-        modalTitle.innerText = isWin ? "🎯 Target Identified" : "❌ Due Diligence Failed";
-        modalTitle.style.color = isWin ? "var(--tile-correct)" : "var(--accent-gold)";
-        modalMessage.innerText = isWin 
-            ? `You figured it out in ${guesses.length}/${MAX_GUESSES} attempts!` 
-            : `The books were too messy.`;
-        targetCompanyName.innerText = targetMetric.company_name;
-        
-        modalNextBtn.classList.remove('hidden');
-        mainNextBtn.classList.remove('hidden');
-        
-        if (!modalShown) {
-            modal.classList.remove('hidden');
-            modalShown = true;
-            saveState();
-        }
-    }, 1100);
-}
-
-// 11. Modal Navigation & Progression
-closeModalBtn.addEventListener('click', () => {
-    modal.classList.add('hidden');
-});
-
-function goToNextPuzzle() {
-    currentOrderIndex++;
-    guesses = [];
-    gameOver = false;
-    modalShown = false;
-    saveState();
-    setupCurrentPuzzle();
-}
-
-modalNextBtn.addEventListener('click', goToNextPuzzle);
-mainNextBtn.addEventListener('click', goToNextPuzzle);
-
-// 12. Local Storage Persistence
-function saveState() {
-    const state = {
-        currentOrderIndex: currentOrderIndex,
-        guesses: guesses.map(g => g.ticker),
-        gameOver: gameOver,
-        modalShown: modalShown
-    };
-    localStorage.setItem('CArtle_State', JSON.stringify(state));
-}
-
-function loadState() {
-    const saved = localStorage.getItem('CArtle_State');
-    if (!saved) return;
-
-    try {
-        const state = JSON.parse(saved);
-        currentOrderIndex = state.currentOrderIndex || 0;
-        gameOver = Boolean(state.gameOver);
-        modalShown = Boolean(state.modalShown);
-        
-        guesses = [];
-        if (Array.isArray(state.guesses)) {
-            state.guesses.forEach(ticker => {
-                const fullGuess = metricsData.find(m => m.ticker === ticker);
-                if (fullGuess) guesses.push(fullGuess);
-            });
-        }
-    } catch (e) {
-        console.error("Failed to load saved state:", e);
-    }
-}
-
-window.onload = init;
+    clueContainer.classList.remove(
