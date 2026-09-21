@@ -1,0 +1,212 @@
+[
+  {
+    "ticker": "AAPL",
+    "clues": [
+      "Founded in a California garage in 1976 by Steve ████ and Steve Wozniak, sparking the personal computer revolution with the Apple II.",
+      "Founded in a California garage in 1976 by Steve Jobs and Steve Wozniak, sparking the personal computer revolution with the Apple II."
+    ]
+  },
+  {
+    "ticker": "MSFT",
+    "clues": [
+      "Established in Albuquerque in 1975 by Bill █████ and Paul Allen to develop a BASIC interpreter for the Altair 8800 microcomputer.",
+      "Established in Albuquerque in 1975 by Bill Gates and Paul Allen to develop a BASIC interpreter for the Altair 8800 microcomputer."
+    ]
+  },
+  {
+    "ticker": "NVDA",
+    "clues": [
+      "Co-founded in 1993 at a Silicon Valley Denny's diner by Taiwanese-American engineer Jensen █████ to accelerate 3D gaming graphics.",
+      "Co-founded in 1993 at a Silicon Valley Denny's diner by Taiwanese-American engineer Jensen Huang to accelerate 3D gaming graphics."
+    ]
+  },
+  {
+    "ticker": "GOOGL",
+    "clues": [
+      "Originated in 1996 as '███████', a Stanford University PhD research project engineered by Larry Page and Sergey Brin.",
+      "Originated in 1996 as 'BackRub', a Stanford University PhD research project engineered by Larry Page and Sergey Brin."
+    ]
+  },
+  {
+    "ticker": "AMZN",
+    "clues": [
+      "Launched in 1994 from a Bellevue garage by Jeff █████ as an online bookstore with a business plan written during a cross-country drive.",
+      "Launched in 1994 from a Bellevue garage by Jeff Bezos as an online bookstore with a business plan written during a cross-country drive."
+    ]
+  },
+  {
+    "ticker": "META",
+    "clues": [
+      "Created in a Harvard University dorm room in 2004 by Mark ██████████ to digitally connect college students across campus directories.",
+      "Created in a Harvard University dorm room in 2004 by Mark Zuckerberg to digitally connect college students across campus directories."
+    ]
+  },
+  {
+    "ticker": "BRK.A",
+    "clues": [
+      "Traces its roots to a 19th-century Rhode Island cotton textile mill before Warren ███████ acquired control in 1965.",
+      "Traces its roots to a 19th-century Rhode Island cotton textile mill before Warren Buffett acquired control in 1965."
+    ]
+  },
+  {
+    "ticker": "TSLA",
+    "clues": [
+      "Incorporated in 2003 by Martin Eberhard and Marc Tarpenning, naming the venture after AC electricity pioneer Nikola █████.",
+      "Incorporated in 2003 by Martin Eberhard and Marc Tarpenning, naming the venture after AC electricity pioneer Nikola Tesla."
+    ]
+  },
+  {
+    "ticker": "TSM",
+    "clues": [
+      "Founded in Hsinchu Science Park in 1987 by Dr. Morris █████, inventing the pure-play dedicated semiconductor contract fabrication model.",
+      "Founded in Hsinchu Science Park in 1987 by Dr. Morris Chang, inventing the pure-play dedicated semiconductor contract fabrication model."
+    ]
+  },
+  {
+    "ticker": "LLY",
+    "clues": [
+      "Founded in Indianapolis in 1876 by a Civil War veteran chemist, celebrated for becoming the first commercial mass-producer of ███████ in 1923.",
+      "Founded in Indianapolis in 1876 by a Civil War veteran chemist, celebrated for becoming the first commercial mass-producer of insulin in 1923."
+    ]
+  },
+  {
+    "ticker": "AVGO",
+    "clues": [
+      "Traces its engineering ancestry to the semiconductor products division established by electronics pioneer ███████-Packard in 1961.",
+      "Traces its engineering ancestry to the semiconductor products division established by electronics pioneer Hewlett-Packard in 1961."
+    ]
+  },
+  {
+    "ticker": "JPM",
+    "clues": [
+      "Anchored by the Wall Street banking house built by Gilded Age corporate financier J. Pierpont ██████, who personally halted the Panic of 1907.",
+      "Anchored by the Wall Street banking house built by Gilded Age corporate financier J. Pierpont Morgan, who personally halted the Panic of 1907."
+    ]
+  },
+  {
+    "ticker": "NVO",
+    "clues": [
+      "Founded in Bagsværd, Denmark in 1923 following a Nobel Prize-winning medical expedition to Canada to secure rights for ███████ extraction.",
+      "Founded in Bagsværd, Denmark in 1923 following a Nobel Prize-winning medical expedition to Canada to secure rights for insulin extraction."
+    ]
+  },
+  {
+    "ticker": "V",
+    "clues": [
+      "Inaugurated in Fresno, California in 1958 as the '████Americard', executing the first mass drop of revolving credit cards via mail.",
+      "Inaugurated in Fresno, California in 1958 as the 'BankAmericard', executing the first mass drop of revolving credit cards via mail."
+    ]
+  },
+  {
+    "ticker": "WMT",
+    "clues": [
+      "Founded in Rogers, Arkansas in 1962 by Sam ██████, establishing a discount department store network dedicated to small rural towns.",
+      "Founded in Rogers, Arkansas in 1962 by Sam Walton, establishing a discount department store network dedicated to small rural towns."
+    ]
+  },
+  {
+    "ticker": "XOM",
+    "clues": [
+      "The primary direct descendant of John D. Rockefeller's legendary ████████ Oil trust, originally incorporated in Ohio in 1870.",
+      "The primary direct descendant of John D. Rockefeller's legendary Standard Oil trust, originally incorporated in Ohio in 1870."
+    ]
+  },
+  {
+    "ticker": "LVMH",
+    "clues": [
+      "Constructed in 1987 through the merger of iconic luggage house Louis Vuitton with champagne and cognac producer ████ Hennessy.",
+      "Constructed in 1987 through the merger of iconic luggage house Louis Vuitton with champagne and cognac producer Moet Hennessy."
+    ]
+  },
+  {
+    "ticker": "ASML",
+    "clues": [
+      "Spun off in Veldhoven in 1984 as a humble joint venture between Dutch electronics giant ███████ and ASM International.",
+      "Spun off in Veldhoven in 1984 as a humble joint venture between Dutch electronics giant Philips and ASM International."
+    ]
+  },
+  {
+    "ticker": "KO",
+    "clues": [
+      "Invented in Atlanta in 1886 by pharmacist Dr. John Stith Pemberton as a flavored medicinal beverage sold at Jacob's ████████ soda fountain.",
+      "Invented in Atlanta in 1886 by pharmacist Dr. John Stith Pemberton as a flavored medicinal beverage sold at Jacob's Pharmacy soda fountain."
+    ]
+  },
+  {
+    "ticker": "NFLX",
+    "clues": [
+      "Founded in 1997 by Reed Hastings and Marc Randolph in Scotts Valley, California as a flat-fee DVD-by-mail subscription service battling ███████████.",
+      "Founded in 1997 by Reed Hastings and Marc Randolph in Scotts Valley, California as a flat-fee DVD-by-mail subscription service battling Blockbuster."
+    ]
+  },
+  {
+    "ticker": "AMD",
+    "clues": [
+      "Founded in Sunnyvale in 1969 by Jerry Sanders and seven colleagues departing the legendary semiconductor cradle known as █████████ Semiconductor.",
+      "Founded in Sunnyvale in 1969 by Jerry Sanders and seven colleagues departing the legendary semiconductor cradle known as Fairchild Semiconductor."
+    ]
+  },
+  {
+    "ticker": "TM",
+    "clues": [
+      "Established in 1937 by Kiichiro Toyoda as an automotive spinoff from his father Sakichi's automatic fabric ████ machinery enterprise.",
+      "Established in 1937 by Kiichiro Toyoda as an automotive spinoff from his father Sakichi's automatic fabric loom machinery enterprise."
+    ]
+  },
+  {
+    "ticker": "DIS",
+    "clues": [
+      "Founded in 1923 by brothers Walt and Roy in Los Angeles, transforming global pop culture with the introduction of Mickey █████ in 1928.",
+      "Founded in 1923 by brothers Walt and Roy in Los Angeles, transforming global pop culture with the introduction of Mickey Mouse in 1928."
+    ]
+  },
+  {
+    "ticker": "MCD",
+    "clues": [
+      "Started as a barbecue drive-in in San Bernardino in 1940 by brothers Richard and Maurice, before milkshake mixer salesman Ray ████ franchised it worldwide.",
+      "Started as a barbecue drive-in in San Bernardino in 1940 by brothers Richard and Maurice, before milkshake mixer salesman Ray Kroc franchised it worldwide."
+    ]
+  },
+  {
+    "ticker": "RMS",
+    "clues": [
+      "Established in Paris in 1837 by Thierry Hermès as an artisanal workshop crafting high-end equestrian ████████ and bridles for European nobility.",
+      "Established in Paris in 1837 by Thierry Hermès as an artisanal workshop crafting high-end equestrian harnesses and bridles for European nobility."
+    ]
+  },
+  {
+    "ticker": "RACE",
+    "clues": [
+      "Founded in Modena in 1939 by Alfa Romeo racing driver Enzo ███████, debuting its first sports car bearing the Prancing Horse emblem in 1947.",
+      "Founded in Modena in 1939 by Alfa Romeo racing driver Enzo Ferrari, debuting its first sports car bearing the Prancing Horse emblem in 1947."
+    ]
+  },
+  {
+    "ticker": "BABA",
+    "clues": [
+      "Founded in a Hangzhou apartment in 1999 by former English teacher Jack ██ and 17 partners to connect domestic Chinese manufacturers with international wholesale buyers.",
+      "Founded in a Hangzhou apartment in 1999 by former English teacher Jack Ma and 17 partners to connect domestic Chinese manufacturers with international wholesale buyers."
+    ]
+  },
+  {
+    "ticker": "SONY",
+    "clues": [
+      "Established in a bombed-out Tokyo department store in 1946 by Masaru Ibuka and Akio Morita, introducing the world-changing portable ███████ cassette player in 1979.",
+      "Established in a bombed-out Tokyo department store in 1946 by Masaru Ibuka and Akio Morita, introducing the world-changing portable Walkman cassette player in 1979."
+    ]
+  },
+  {
+    "ticker": "BA",
+    "clues": [
+      "Founded near Puget Sound in 1916 by timber industrialist William E. ██████, pioneering early airmail biplanes and commercial jetliners like the 707.",
+      "Founded near Puget Sound in 1916 by timber industrialist William E. Boeing, pioneering early airmail biplanes and commercial jetliners like the 707."
+    ]
+  },
+  {
+    "ticker": "PLTR",
+    "clues": [
+      "Co-founded in 2003 with early backing from the CIA's venture capital arm In-Q-Tel, borrowing its name from the seeing-stones in The Lord of the █████.",
+      "Co-founded in 2003 with early backing from the CIA's venture capital arm In-Q-Tel, borrowing its name from the seeing-stones in The Lord of the Rings."
+    ]
+  }
+]
