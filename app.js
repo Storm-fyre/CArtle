@@ -586,4 +586,184 @@ function updateClueUI() {
         return;
     }
 
-    clueContainer.classList.remove(
+    clueContainer.classList.remove('hidden');
+    const fails = guesses.length;
+
+    if (fails === 0) {
+        if (clueTitleSpan) clueTitleSpan.innerText = "Engagement Scope:";
+        clueText.innerText = targetOpeningFact ? targetOpeningFact.clues[0] : "Searching records...";
+    } else if (fails === 1) {
+        if (clueTitleSpan) clueTitleSpan.innerText = "Engagement Scope:";
+        clueText.innerText = targetOpeningFact ? targetOpeningFact.clues[1] : targetFact.clues[0];
+    } else if (fails === 2) {
+        if (clueTitleSpan) clueTitleSpan.innerText = "Notes to Accounts:";
+        clueText.innerText = targetFact.clues[0];
+    } else if (fails === 3) {
+        if (clueTitleSpan) clueTitleSpan.innerText = "Notes to Accounts:";
+        clueText.innerText = targetFact.clues[1];
+    } else {
+        revealFullAuditorClue();
+    }
+}
+
+function revealFullAuditorClue() {
+    if (clueTitleSpan) clueTitleSpan.innerText = "Notes to Accounts:";
+    if (targetFact && targetFact.clues && targetFact.clues.length > 0) {
+        clueText.innerText = targetFact.clues[targetFact.clues.length - 1];
+    }
+}
+
+// --- 11. WIN / LOSS / CONCEDE MODAL FLOW ---
+function endGame(isWin, isConceded = false) {
+    searchInput.disabled = true;
+    searchInput.placeholder = "Audit Complete.";
+    concedeBtn.classList.add('hidden');
+
+    // Reveal clue only if in Analyst mode
+    if (gameMode === 'analyst') {
+        clueContainer.classList.remove('hidden');
+        revealFullAuditorClue();
+    } else {
+        clueContainer.classList.add('hidden');
+    }
+
+    // Populate Exact Target Multiples Card
+    renderTargetStatsCard();
+    
+    setTimeout(() => {
+        if (isWin) {
+            modalTitle.innerText = "🎯 Target Identified";
+            modalTitle.style.color = "var(--tile-correct)";
+            modalMessage.innerText = `You figured it out in ${guesses.length}/${MAX_GUESSES} attempts!`;
+        } else if (isConceded) {
+            modalTitle.innerText = "📑 Audit Conceded";
+            modalTitle.style.color = "var(--accent-gold)";
+            modalMessage.innerText = "Disclaimer of opinion issued. Target revealed below.";
+        } else {
+            modalTitle.innerText = "❌ Due Diligence Failed";
+            modalTitle.style.color = "var(--accent-gold)";
+            modalMessage.innerText = "The books were too messy.";
+        }
+
+        targetCompanyName.innerText = targetMetric.company_name;
+        modalNextBtn.classList.remove('hidden');
+        mainNextBtn.classList.remove('hidden');
+        
+        if (!modalShown) {
+            modal.classList.remove('hidden');
+            modalShown = true;
+            saveState();
+        }
+    }, isConceded ? 300 : 1100);
+}
+
+function renderTargetStatsCard() {
+    const mcapVal = getMcap(targetMetric);
+    const mcapStr = currentMarket === 'global' ? `$${mcapVal.toLocaleString()}B` : `₹${mcapVal.toLocaleString()}Cr`;
+    const peStr = targetMetric.pe_ratio < 0 ? 'N/A (Loss)' : targetMetric.pe_ratio;
+    const ownVal = getOwnership(targetMetric);
+    const ownLabel = currentMarket === 'global' ? 'INSIDER' : 'PROM%';
+
+    targetStatsCard.innerHTML = `
+        <div class="stat-box">
+            <span class="stat-label">MCAP</span>
+            <span class="stat-value">${mcapStr}</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-label">P/E</span>
+            <span class="stat-value">${peStr}</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-label">${ownLabel}</span>
+            <span class="stat-value">${ownVal}%</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-label">D/E</span>
+            <span class="stat-value">${targetMetric.debt_to_equity}</span>
+        </div>
+    `;
+    targetStatsCard.classList.remove('hidden');
+}
+
+// --- 12. NAVIGATION & POWER-USER KEYBOARD SHORTCUTS ---
+closeModalBtn.addEventListener('click', () => modal.classList.add('hidden'));
+
+function goToNextPuzzle() {
+    currentOrderIndex++;
+    guesses = [];
+    gameOver = false;
+    modalShown = false;
+    saveState();
+    setupCurrentPuzzle();
+}
+
+modalNextBtn.addEventListener('click', goToNextPuzzle);
+mainNextBtn.addEventListener('click', goToNextPuzzle);
+
+// Global Keyboard Shortcuts (Enter for Next Puzzle, Escape to close modals)
+window.addEventListener('keydown', (e) => {
+    // If post-game modal is open
+    if (!modal.classList.contains('hidden')) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            goToNextPuzzle();
+        } else if (e.key === 'Escape') {
+            e.preventDefault();
+            modal.classList.add('hidden');
+        }
+        return;
+    }
+
+    // If mode selection modal is open
+    if (!modeModal.classList.contains('hidden')) {
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            if (!localStorage.getItem('CArtle_Mode')) {
+                setMode('fundamentalist', true);
+            } else {
+                modeModal.classList.add('hidden');
+            }
+        }
+    }
+});
+
+// --- 13. LOCAL STORAGE PERSISTENCE (INDEPENDENT PER MARKET) ---
+function saveState() {
+    const state = {
+        currentOrderIndex: currentOrderIndex,
+        guesses: guesses.map(g => g.ticker),
+        gameOver: gameOver,
+        modalShown: modalShown
+    };
+    localStorage.setItem(getStateStorageKey(), JSON.stringify(state));
+}
+
+function loadState() {
+    const saved = localStorage.getItem(getStateStorageKey());
+    if (!saved) {
+        currentOrderIndex = 0;
+        guesses = [];
+        gameOver = false;
+        modalShown = false;
+        return;
+    }
+
+    try {
+        const state = JSON.parse(saved);
+        currentOrderIndex = state.currentOrderIndex || 0;
+        gameOver = Boolean(state.gameOver);
+        modalShown = Boolean(state.modalShown);
+        
+        guesses = [];
+        if (Array.isArray(state.guesses)) {
+            state.guesses.forEach(ticker => {
+                const fullGuess = metricsData.find(m => m.ticker === ticker);
+                if (fullGuess) guesses.push(fullGuess);
+            });
+        }
+    } catch (e) {
+        console.error("Failed to load state:", e);
+    }
+}
+
+window.onload = init;

@@ -144,9 +144,9 @@ header {
     background-color: transparent;
     border: 1px solid var(--border-color);
     border-radius: 20px;
-    font-size: 0.72rem;
+    font-size: 0.68rem;
     font-weight: 600;
-    padding: 5px 10px;
+    padding: 5px 9px;
     color: var(--text-main);
     cursor: pointer;
     font-family: 'Inter', sans-serif;
@@ -159,46 +159,6 @@ header {
 .text-pill-btn:hover {
     background-color: var(--hover-bg);
     border-color: var(--accent-gold);
-}
-
-/* Mobile Header: Two-Row Flow to Prevent Overlap */
-@media (max-width: 520px) {
-    header {
-        display: grid;
-        grid-template-columns: 1fr auto;
-        grid-template-rows: auto auto;
-        row-gap: 10px;
-        padding: 12px 16px;
-    }
-    .header-center {
-        position: static;
-        transform: none;
-        grid-column: 1;
-        grid-row: 1;
-        justify-content: flex-start;
-        align-items: flex-start;
-        pointer-events: auto;
-    }
-    .title-container {
-        align-items: flex-start;
-    }
-    .header-right {
-        grid-column: 2;
-        grid-row: 1;
-        justify-content: flex-end;
-    }
-    .header-left {
-        grid-column: 1 / -1;
-        grid-row: 2;
-        display: flex;
-        justify-content: flex-start;
-        gap: 8px;
-        width: 100%;
-    }
-    .text-pill-btn {
-        padding: 6px 12px;
-        font-size: 0.72rem;
-    }
 }
 
 main {
@@ -271,7 +231,7 @@ main {
     border-left: 3px solid var(--accent-gold);
 }
 
-/* Toast Notification */
+/* Duplicate / Warning Toast Notification */
 .toast-notification {
     position: fixed;
     top: 25px;
@@ -539,8 +499,16 @@ main {
     gap: 8px;
 }
 
-.mode-icon { font-size: 1.25rem; }
-.mode-title { font-weight: 700; font-size: 0.95rem; color: var(--text-main); }
+.mode-icon {
+    font-size: 1.25rem;
+}
+
+.mode-title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text-main);
+}
+
 .mode-statement {
     font-size: 0.82rem;
     font-weight: 600;
@@ -548,10 +516,23 @@ main {
     color: var(--accent-gold);
     line-height: 1.35;
 }
-.mode-desc { font-size: 0.74rem; color: var(--text-muted); line-height: 1.4; }
 
+.mode-desc {
+    font-size: 0.74rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+/* Mobile Responsiveness for Header & Cards */
 @media (max-width: 540px) {
     .mode-selection-container {
         grid-template-columns: 1fr;
+    }
+    .header-left {
+        gap: 4px;
+    }
+    .text-pill-btn {
+        padding: 4px 7px;
+        font-size: 0.65rem;
     }
 }
