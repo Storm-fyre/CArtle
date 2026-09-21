@@ -67,13 +67,27 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 20px;
+    padding: 12px 16px;
     border-bottom: 1px solid var(--border-color);
     position: relative; 
 }
 
-.header-left, .header-right { display: flex; align-items: center; gap: 8px; flex: 1; }
-.header-right { justify-content: flex-end; }
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1.2;
+    flex-wrap: wrap;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 0.8;
+    justify-content: flex-end;
+}
+
 .header-center {
     position: absolute;
     left: 50%;
@@ -94,16 +108,16 @@ header {
 
 .title-container h1 {
     font-family: 'Merriweather', serif;
-    font-size: 1.6rem;
+    font-size: 1.5rem;
     font-weight: 700;
     letter-spacing: -0.5px;
     line-height: 1.1; 
 }
 
 .game-subtitle {
-    font-size: 0.65rem;
+    font-size: 0.62rem;
     text-transform: uppercase;
-    letter-spacing: 1.5px;
+    letter-spacing: 1.2px;
     color: var(--accent-gold);
     font-weight: 700;
     margin-top: 2px;
@@ -114,9 +128,9 @@ header {
     background-color: transparent;
     border: 1px solid var(--border-color);
     border-radius: 6px;
-    font-size: 1.2rem;
-    width: 36px;
-    height: 36px;
+    font-size: 1.1rem;
+    width: 34px;
+    height: 34px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -130,15 +144,16 @@ header {
     background-color: transparent;
     border: 1px solid var(--border-color);
     border-radius: 20px;
-    font-size: 0.72rem;
+    font-size: 0.68rem;
     font-weight: 600;
-    padding: 6px 12px;
+    padding: 5px 9px;
     color: var(--text-main);
     cursor: pointer;
     font-family: 'Inter', sans-serif;
     display: flex;
     align-items: center;
     gap: 4px;
+    white-space: nowrap;
     transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 .text-pill-btn:hover {
@@ -149,13 +164,13 @@ header {
 main {
     width: 100%;
     max-width: 600px;
-    padding: 20px;
+    padding: 16px 20px 24px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 16px;
 }
 
-.disclaimer { font-size: 0.75rem; color: var(--text-muted); text-align: center; }
+.disclaimer { font-size: 0.72rem; color: var(--text-muted); text-align: center; }
 
 /* Search Bar */
 .input-wrapper {
@@ -171,8 +186,8 @@ main {
 
 #search-input {
     width: 100%;
-    padding: 14px 16px;
-    font-size: 1rem; 
+    padding: 13px 16px;
+    font-size: 0.95rem; 
     border: none;
     background: transparent;
     font-family: 'Inter', sans-serif;
@@ -201,7 +216,7 @@ main {
     padding: 12px 16px;
     cursor: pointer;
     border-bottom: 1px solid var(--border-color);
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     transition: background-color 0.15s, border-left-color 0.15s;
     border-left: 3px solid transparent;
 }
@@ -252,11 +267,11 @@ main {
 }
 
 .grid-header {
-    font-size: 0.70rem;
+    font-size: 0.68rem;
     font-weight: 600;
     color: var(--text-muted);
     padding-bottom: 8px;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -287,6 +302,7 @@ main {
 .close { background-color: var(--tile-close) !important; color: var(--tile-text) !important; border-color: var(--tile-close) !important; }
 
 .arrow { font-size: 0.85rem; margin-bottom: 3px; }
+.loss-cell { font-size: 0.65rem !important; line-height: 1.1; }
 
 /* Flip Animation */
 @keyframes flipIn {
@@ -295,14 +311,36 @@ main {
 }
 .animate-flip { animation: flipIn 0.5s ease-out forwards; }
 
+/* Concede Audit Link Button */
+.concede-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 6px;
+}
+
+.text-link-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 0.74rem;
+    text-decoration: underline;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: color 0.2s ease;
+}
+
+.text-link-btn:hover {
+    color: var(--accent-gold);
+}
+
 /* Legend */
 .legend {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 4px;
     text-align: center;
-    margin-top: 20px;
-    font-size: 0.75rem;
+    margin-top: 14px;
+    font-size: 0.72rem;
     color: var(--text-muted);
     font-weight: 500;
 }
@@ -311,8 +349,8 @@ main {
 .clue-box {
     background-color: var(--card-bg);
     border-left: 3px solid var(--accent-gold);
-    padding: 15px 16px;
-    font-size: 0.95rem;
+    padding: 14px 16px;
+    font-size: 0.92rem;
     line-height: 1.5;
     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     border-radius: 4px;
@@ -322,7 +360,7 @@ main {
 .clue-number { font-weight: 600; color: var(--text-main); margin-right: 6px; }
 #clue-text { margin-top: 5px; }
 
-/* Buttons */
+/* Primary Buttons */
 .primary-btn {
     background-color: var(--btn-primary);
     color: var(--btn-primary-text);
@@ -334,7 +372,7 @@ main {
     cursor: pointer;
     font-family: 'Inter', sans-serif;
     transition: opacity 0.2s;
-    margin-top: 15px;
+    margin-top: 12px;
 }
 .primary-btn:active { opacity: 0.8; }
 .w-full { width: 100%; }
@@ -354,9 +392,9 @@ main {
 .modal-content {
     position: relative;
     background-color: var(--card-bg);
-    padding: 30px 20px 20px;
+    padding: 28px 20px 20px;
     border-radius: 6px;
-    max-width: 420px;
+    max-width: 440px;
     width: 100%;
     box-shadow: var(--shadow);
     text-align: center;
@@ -373,21 +411,51 @@ main {
     cursor: pointer;
 }
 .modal h2 { margin-bottom: 8px; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; color: var(--accent-gold); }
-.modal p { font-size: 0.95rem; color: var(--text-main); margin-bottom: 15px; }
+.modal p { font-size: 0.92rem; color: var(--text-main); margin-bottom: 12px; }
 
 .flashcard {
     background-color: var(--bg-color);
     border: 1px solid var(--border-color);
-    padding: 15px 16px;
-    font-size: 1.1rem;
-    margin-bottom: 15px;
+    padding: 12px 14px;
+    font-size: 1.05rem;
+    margin-bottom: 12px;
     border-radius: 4px;
+}
+
+/* Exact Target Multiples Flashcard on Modal */
+.target-stats-card {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 10px 6px;
+    margin-bottom: 12px;
+}
+.stat-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.stat-label {
+    font-size: 0.64rem;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+.stat-value {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--text-main);
 }
 
 /* Mode Selection Modal & Dual Interactive Cards */
 .mode-modal-content {
     max-width: 520px;
-    padding: 30px 24px 25px;
+    padding: 28px 20px 22px;
 }
 
 .mode-selection-container {
@@ -455,9 +523,16 @@ main {
     line-height: 1.4;
 }
 
-/* Mobile Responsiveness for Mode Selector */
+/* Mobile Responsiveness for Header & Cards */
 @media (max-width: 540px) {
     .mode-selection-container {
         grid-template-columns: 1fr;
+    }
+    .header-left {
+        gap: 4px;
+    }
+    .text-pill-btn {
+        padding: 4px 7px;
+        font-size: 0.65rem;
     }
 }
