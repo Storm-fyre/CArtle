@@ -123,7 +123,22 @@ header {
     margin-top: 2px;
 }
 
-/* Header Buttons */
+/* Header Read-Only Status Badges */
+.header-badge {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    font-size: 0.66rem;
+    font-weight: 600;
+    padding: 4px 8px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+    user-select: none;
+}
+
 .icon-btn {
     background-color: transparent;
     border: 1px solid var(--border-color);
@@ -139,27 +154,6 @@ header {
     transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 .icon-btn:hover { background-color: var(--hover-bg); border-color: var(--text-muted); }
-
-.text-pill-btn {
-    background-color: transparent;
-    border: 1px solid var(--border-color);
-    border-radius: 20px;
-    font-size: 0.68rem;
-    font-weight: 600;
-    padding: 5px 9px;
-    color: var(--text-main);
-    cursor: pointer;
-    font-family: 'Inter', sans-serif;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    white-space: nowrap;
-    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-}
-.text-pill-btn:hover {
-    background-color: var(--hover-bg);
-    border-color: var(--accent-gold);
-}
 
 main {
     width: 100%;
@@ -328,10 +322,7 @@ main {
     font-family: 'Inter', sans-serif;
     transition: color 0.2s ease;
 }
-
-.text-link-btn:hover {
-    color: var(--accent-gold);
-}
+.text-link-btn:hover { color: var(--accent-gold); }
 
 /* Legend */
 .legend {
@@ -452,7 +443,58 @@ main {
     color: var(--text-main);
 }
 
-/* Mode Selection Modal & Dual Interactive Cards */
+/* Post-Game Modal Configuration Bar (Below Next Puzzle Button) */
+.modal-settings-bar {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-align: left;
+}
+.setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+.setting-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+.segmented-control {
+    display: flex;
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 2px;
+    gap: 2px;
+}
+.segment-btn {
+    background: none;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 16px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+}
+.segment-btn:hover { color: var(--text-main); }
+.segment-btn.active {
+    background-color: var(--card-bg);
+    color: var(--text-main);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+/* Onboarding Selection Modals (Market & Mode) */
 .mode-modal-content {
     max-width: 520px;
     padding: 28px 20px 22px;
@@ -480,13 +522,11 @@ main {
     transition: all 0.2s ease;
     text-align: left;
 }
-
 .mode-card:hover {
     border-color: var(--accent-gold);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
-
 .mode-card.active {
     border-color: var(--accent-gold);
     background-color: var(--card-bg);
@@ -498,17 +538,12 @@ main {
     align-items: center;
     gap: 8px;
 }
-
-.mode-icon {
-    font-size: 1.25rem;
-}
-
+.mode-icon { font-size: 1.25rem; }
 .mode-title {
     font-weight: 700;
     font-size: 0.95rem;
     color: var(--text-main);
 }
-
 .mode-statement {
     font-size: 0.82rem;
     font-weight: 600;
@@ -516,14 +551,13 @@ main {
     color: var(--accent-gold);
     line-height: 1.35;
 }
-
 .mode-desc {
     font-size: 0.74rem;
     color: var(--text-muted);
     line-height: 1.4;
 }
 
-/* Mobile Responsiveness for Header & Cards */
+/* Mobile Responsiveness */
 @media (max-width: 540px) {
     .mode-selection-container {
         grid-template-columns: 1fr;
@@ -531,8 +565,21 @@ main {
     .header-left {
         gap: 4px;
     }
-    .text-pill-btn {
-        padding: 4px 7px;
-        font-size: 0.65rem;
+    .header-badge {
+        padding: 3px 6px;
+        font-size: 0.62rem;
+    }
+    .setting-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+    .segmented-control {
+        width: 100%;
+        justify-content: space-between;
+    }
+    .segment-btn {
+        flex: 1;
+        text-align: center;
     }
 }

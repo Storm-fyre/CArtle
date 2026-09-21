@@ -11,8 +11,9 @@
 <body>
     <header>
         <div class="header-left">
-            <button id="market-toggle-btn" class="text-pill-btn" title="Toggle Market Universe">🇮🇳 Dalal St</button>
-            <button id="mode-toggle-btn" class="text-pill-btn" title="Change Difficulty Mode">📈 Fundamentalist</button>
+            <!-- Read-only status badges during active play to lock player commitment -->
+            <span id="header-market-badge" class="header-badge">🇮🇳 Dalal St</span>
+            <span id="header-mode-badge" class="header-badge">📈 Fundamentalist</span>
         </div>
         <div class="header-center">
             <div class="title-container">
@@ -70,15 +71,41 @@
         </div>
     </main>
 
-    <!-- Mode Selection Modal -->
+    <!-- STEP 1: Market Jurisdiction Selection Modal -->
+    <div id="market-modal" class="modal hidden">
+        <div class="modal-content mode-modal-content">
+            <h2 class="serif-title">Market Jurisdiction</h2>
+            <p class="help-text">Select your audit engagement desk:</p>
+            
+            <div class="mode-selection-container">
+                <button id="btn-market-india" class="mode-card" type="button">
+                    <div class="mode-card-header">
+                        <span class="mode-icon">🇮🇳</span>
+                        <span class="mode-title">Dalal Street Desk</span>
+                    </div>
+                    <div class="mode-statement">"I know my promoters, PSUs, and Crores."</div>
+                    <div class="mode-desc">Audit India's blue chips across the NSE & BSE. Denominated in ₹ Crores with SEBI promoter holding metrics.</div>
+                </button>
+                
+                <button id="btn-market-global" class="mode-card" type="button">
+                    <div class="mode-card-header">
+                        <span class="mode-icon">🌎</span>
+                        <span class="mode-title">Wall Street & Global Desk</span>
+                    </div>
+                    <div class="mode-statement">"Take me to the Trillion-Dollar Club."</div>
+                    <div class="mode-desc">Audit multinational titans from Silicon Valley tech to European luxury. Denominated in $ Billions with insider ownership metrics.</div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 2: Audit Grade / Mode Selection Modal -->
     <div id="mode-modal" class="modal hidden">
         <div class="modal-content mode-modal-content">
-            <button id="close-mode-modal" class="close-btn" title="Close">✕</button>
             <h2 class="serif-title">Audit Grade</h2>
             <p class="help-text">Select your engagement scope:</p>
             
             <div class="mode-selection-container">
-                <!-- Option 1: Analyst Mode -->
                 <button id="btn-mode-analyst" class="mode-card" type="button">
                     <div class="mode-card-header">
                         <span class="mode-icon">🎓</span>
@@ -88,7 +115,6 @@
                     <div class="mode-desc">Includes progressive founder trivia, business milestones, and redacted statutory notes.</div>
                 </button>
                 
-                <!-- Option 2: Pure Fundamentalist -->
                 <button id="btn-mode-fundamentalist" class="mode-card" type="button">
                     <div class="mode-card-header">
                         <span class="mode-icon">📈</span>
@@ -101,7 +127,7 @@
         </div>
     </div>
 
-    <!-- Post-Game Modal -->
+    <!-- Post-Game Scorecard Modal -->
     <div id="modal" class="modal hidden">
         <div class="modal-content">
             <button id="close-modal" class="close-btn" title="Close">✕</button>
@@ -111,12 +137,28 @@
                 Answer: <span id="target-company-name"></span>
             </div>
             
-            <!-- Exact Target Multiples Card -->
-            <div id="target-stats-card" class="target-stats-card hidden">
-                <!-- Javascript will inject benchmark fundamentals here -->
-            </div>
+            <!-- Exact Target Multiples Benchmark Card -->
+            <div id="target-stats-card" class="target-stats-card hidden"></div>
 
             <button id="modal-next-btn" class="primary-btn w-full hidden">Next Puzzle ➡️</button>
+
+            <!-- Post-Game Next Puzzle Configuration Bar -->
+            <div class="modal-settings-bar">
+                <div class="setting-row">
+                    <span class="setting-label">Next Jurisdiction:</span>
+                    <div class="segmented-control">
+                        <button id="post-market-india" class="segment-btn" type="button">🇮🇳 Dalal St</button>
+                        <button id="post-market-global" class="segment-btn" type="button">🌎 Global</button>
+                    </div>
+                </div>
+                <div class="setting-row">
+                    <span class="setting-label">Next Grade:</span>
+                    <div class="segmented-control">
+                        <button id="post-mode-fund" class="segment-btn" type="button">📈 Fundamentalist</button>
+                        <button id="post-mode-analyst" class="segment-btn" type="button">🎓 Analyst</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 

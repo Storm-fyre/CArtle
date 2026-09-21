@@ -18,11 +18,13 @@ themeToggleBtn.addEventListener("click", () => {
 // --- CORE GAME STATE & CONSTANTS ---
 const MAX_GUESSES = 5;
 
-// Active Market: 'india' (Dalal St) vs 'global' (Wall Street)
-let currentMarket = localStorage.getItem('CArtle_Market') || 'india';
+// Active Settings (Loaded from storage or set via onboarding)
+let currentMarket = localStorage.getItem('CArtle_Market') || null;
+let gameMode = localStorage.getItem('CArtle_Mode') || null;
 
-// Difficulty Mode: 'fundamentalist' (default, metrics only) vs 'analyst' (guided clues)
-let gameMode = localStorage.getItem('CArtle_Mode') || 'fundamentalist';
+// Staged Settings for Next Puzzle (Modified via post-game modal)
+let pendingMarket = currentMarket || 'india';
+let pendingMode = gameMode || 'fundamentalist';
 
 // Data stores for active market
 let metricsData = [];
@@ -58,15 +60,20 @@ const puzzleCounter = document.getElementById('puzzle-counter');
 const colMcap = document.getElementById('col-mcap');
 const colPromoter = document.getElementById('col-promoter');
 
-// Buttons & Actions
-const marketToggleBtn = document.getElementById('market-toggle-btn');
+// Header Read-Only Status Badges
+const headerMarketBadge = document.getElementById('header-market-badge');
+const headerModeBadge = document.getElementById('header-mode-badge');
+
+// Action Buttons
 const concedeBtn = document.getElementById('concede-btn');
 const mainNextBtn = document.getElementById('main-next-btn');
 
-// Mode Selection Elements
-const modeToggleBtn = document.getElementById('mode-toggle-btn');
+// Onboarding Modal Elements
+const marketModal = document.getElementById('market-modal');
+const btnMarketIndia = document.getElementById('btn-market-india');
+const btnMarketGlobal = document.getElementById('btn-market-global');
+
 const modeModal = document.getElementById('mode-modal');
-const closeModeModalBtn = document.getElementById('close-mode-modal');
 const btnModeAnalyst = document.getElementById('btn-mode-analyst');
 const btnModeFundamentalist = document.getElementById('btn-mode-fundamentalist');
 
@@ -79,33 +86,100 @@ const targetStatsCard = document.getElementById('target-stats-card');
 const modalNextBtn = document.getElementById('modal-next-btn');
 const closeModalBtn = document.getElementById('close-modal');
 
-// --- 1. INITIALIZATION ---
+// Post-Game Settings Toggles (Below Next Puzzle Button)
+const postMarketIndia = document.getElementById('post-market-india');
+const postMarketGlobal = document.getElementById('post-market-global');
+const postModeFund = document.getElementById('post-mode-fund');
+const postModeAnalyst = document.getElementById('post-mode-analyst');
+
+// --- 1. INITIALIZATION & SEQUENTIAL ONBOARDING ---
 async function init() {
     initTheme();
-    applyModeUI(gameMode);
-    updateHeaderLabels();
+
+    // Step 1: Check if Market Jurisdiction is chosen
+    if (!currentMarket) {
+        marketModal.classList.remove('hidden');
+        return; // Halt until Step 1 completes
+    }
+
+    // Step 2: Check if Audit Grade / Mode is chosen
+    if (!gameMode) {
+        modeModal.classList.remove('hidden');
+        return; // Halt until Step 2 completes
+    }
+
+    // Both chosen: Launch Game
+    await bootGameSession();
+}
+
+async function bootGameSession() {
+    pendingMarket = currentMarket;
+    pendingMode = gameMode;
+
+    updateHeaderDisplay();
 
     const success = await loadMarketData(currentMarket);
-    if (!success) {
-        // Fallback to Indian market if Global files aren't ready yet
+    if (!success && currentMarket === 'global') {
         currentMarket = 'india';
+        pendingMarket = 'india';
         localStorage.setItem('CArtle_Market', 'india');
-        updateHeaderLabels();
+        updateHeaderDisplay();
         await loadMarketData('india');
     }
 
     initPuzzleOrder();
     loadState();
     setupCurrentPuzzle();
-
-    // Check if mode was explicitly set previously, else offer modal
-    if (!localStorage.getItem('CArtle_Mode')) {
-        modeModal.classList.remove('hidden');
-        setMode('fundamentalist', false);
-    }
 }
 
-// --- 2. MARKET DATA LOADER & SWITCHER ---
+// --- 2. ONBOARDING MODAL EVENT LISTENERS ---
+// Step 1: Market Jurisdiction Selection
+btnMarketIndia.addEventListener('click', () => {
+    currentMarket = 'india';
+    pendingMarket = 'india';
+    localStorage.setItem('CArtle_Market', 'india');
+    marketModal.classList.add('hidden');
+
+    // Transition smoothly to Step 2 if mode is not set
+    if (!gameMode) {
+        modeModal.classList.remove('hidden');
+    } else {
+        bootGameSession();
+    }
+});
+
+btnMarketGlobal.addEventListener('click', () => {
+    currentMarket = 'global';
+    pendingMarket = 'global';
+    localStorage.setItem('CArtle_Market', 'global');
+    marketModal.classList.add('hidden');
+
+    // Transition smoothly to Step 2 if mode is not set
+    if (!gameMode) {
+        modeModal.classList.remove('hidden');
+    } else {
+        bootGameSession();
+    }
+});
+
+// Step 2: Audit Grade Selection
+btnModeFundamentalist.addEventListener('click', () => {
+    gameMode = 'fundamentalist';
+    pendingMode = 'fundamentalist';
+    localStorage.setItem('CArtle_Mode', 'fundamentalist');
+    modeModal.classList.add('hidden');
+    bootGameSession();
+});
+
+btnModeAnalyst.addEventListener('click', () => {
+    gameMode = 'analyst';
+    pendingMode = 'analyst';
+    localStorage.setItem('CArtle_Mode', 'analyst');
+    modeModal.classList.add('hidden');
+    bootGameSession();
+});
+
+// --- 3. MARKET DATA LOADER & HEADER FORMATTING ---
 async function loadMarketData(market) {
     const isGlobal = market === 'global';
     const metricsFile = isGlobal ? 'global_metrics.json' : 'metrics.json';
@@ -120,7 +194,7 @@ async function loadMarketData(market) {
         ]);
 
         if (!mRes.ok || !fRes.ok || !oRes.ok) {
-            throw new Error(`Data files not found for ${market}`);
+            throw new Error(`Data files missing for ${market}`);
         }
 
         metricsData = await mRes.json();
@@ -133,76 +207,22 @@ async function loadMarketData(market) {
     }
 }
 
-function updateHeaderLabels() {
+function updateHeaderDisplay() {
+    if (headerMarketBadge) {
+        headerMarketBadge.textContent = currentMarket === 'global' ? '🌎 Global' : '🇮🇳 Dalal St';
+    }
+    if (headerModeBadge) {
+        headerModeBadge.textContent = gameMode === 'fundamentalist' ? '📈 Fundamentalist' : '🎓 Analyst';
+    }
+
     if (currentMarket === 'global') {
-        marketToggleBtn.textContent = '🌎 Global';
         if (colMcap) colMcap.textContent = 'MC($B)';
         if (colPromoter) colPromoter.textContent = 'INSIDER%';
     } else {
-        marketToggleBtn.textContent = '🇮🇳 Dalal St';
         if (colMcap) colMcap.textContent = 'MC(Cr)';
         if (colPromoter) colPromoter.textContent = 'PROM%';
     }
 }
-
-marketToggleBtn.addEventListener('click', async () => {
-    const nextMarket = currentMarket === 'india' ? 'global' : 'india';
-    
-    // Save current market state before switching
-    saveState();
-
-    const success = await loadMarketData(nextMarket);
-    if (!success) {
-        showToast("⚠️ Global dataset files not yet found. Reverting to Dalal St.");
-        return;
-    }
-
-    currentMarket = nextMarket;
-    localStorage.setItem('CArtle_Market', currentMarket);
-    updateHeaderLabels();
-
-    // Initialize market-specific sequence & restore state
-    initPuzzleOrder();
-    loadState();
-    setupCurrentPuzzle();
-
-    showToast(`Switched to ${currentMarket === 'global' ? 'Global / Wall St' : 'Dalal St'} market!`);
-});
-
-// --- 3. MODE MANAGEMENT ---
-function setMode(mode, save = true) {
-    gameMode = mode;
-    if (save) {
-        localStorage.setItem('CArtle_Mode', mode);
-        modeModal.classList.add('hidden');
-    }
-    applyModeUI(mode);
-    updateClueUI();
-}
-
-function applyModeUI(mode) {
-    if (mode === 'fundamentalist') {
-        modeToggleBtn.textContent = '📈 Fundamentalist';
-        btnModeFundamentalist.classList.add('active');
-        btnModeAnalyst.classList.remove('active');
-    } else {
-        modeToggleBtn.textContent = '🎓 Analyst';
-        btnModeAnalyst.classList.add('active');
-        btnModeFundamentalist.classList.remove('active');
-    }
-}
-
-modeToggleBtn.addEventListener('click', () => modeModal.classList.remove('hidden'));
-closeModeModalBtn.addEventListener('click', () => {
-    if (!localStorage.getItem('CArtle_Mode')) {
-        setMode('fundamentalist', true);
-    } else {
-        modeModal.classList.add('hidden');
-    }
-});
-
-btnModeAnalyst.addEventListener('click', () => setMode('analyst', true));
-btnModeFundamentalist.addEventListener('click', () => setMode('fundamentalist', true));
 
 // --- 4. RANDOMIZED PUZZLE SEQUENCING ---
 function getOrderStorageKey() {
@@ -281,7 +301,7 @@ function setupCurrentPuzzle() {
             renderRow(guess, false, idx);
         });
 
-        // Strict Clue Rule: Only Analyst mode sees clues post-game
+        // Strict Clue Rule: Clues are only unhidden in Analyst mode
         if (gameMode === 'analyst') {
             clueContainer.classList.remove('hidden');
             revealFullAuditorClue();
@@ -422,7 +442,6 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// Toast notification helper
 function showToast(message) {
     let existingToast = document.querySelector('.toast-notification');
     if (existingToast) existingToast.remove();
@@ -518,7 +537,7 @@ function createCell(info, animate, delayIndex) {
     return div;
 }
 
-// --- 8. VALUATION COMPARISON ENGINE (SMART DIRECTION ARROWS & LOSS LOGIC) ---
+// --- 8. VALUATION COMPARISON ENGINE (LOSS BADGING & DIRECTION ARROWS) ---
 function compareNumbers(guessVal, targetVal, metricType) {
     const isGuessLoss = metricType === 'pe' && guessVal < 0;
     const isTargetLoss = metricType === 'pe' && targetVal < 0;
@@ -526,12 +545,10 @@ function compareNumbers(guessVal, targetVal, metricType) {
     let displayText = guessVal;
     if (isGuessLoss) displayText = 'N/A (Loss)';
 
-    // Exact Match
     if (Math.abs(guessVal - targetVal) < 0.001) {
         return { text: displayText, cls: 'correct', arrow: '', isLoss: isGuessLoss };
     }
 
-    // Absolute Tolerances for near-zero thresholds
     let absoluteBuffer = 0;
     if (metricType === 'debt') absoluteBuffer = 0.2;
     else if (metricType === 'promoter') absoluteBuffer = 5.0;
@@ -548,13 +565,10 @@ function compareNumbers(guessVal, targetVal, metricType) {
         isYellow = diff <= effectiveTolerance;
     }
 
-    // Directional Arrow Logic
     let arrow = '';
     if (isGuessLoss && !isTargetLoss) {
-        // Target is profitable, guess is loss-making -> target is higher
         arrow = '⬆️';
     } else if (!isGuessLoss && isTargetLoss) {
-        // Target is loss-making, guess is profitable -> target is lower
         arrow = '⬇️';
     } else {
         arrow = guessVal > targetVal ? '⬇️' : '⬆️';
@@ -613,13 +627,12 @@ function revealFullAuditorClue() {
     }
 }
 
-// --- 11. WIN / LOSS / CONCEDE MODAL FLOW ---
+// --- 11. WIN / LOSS / CONCEDE MODAL & POST-GAME TOGGLES ---
 function endGame(isWin, isConceded = false) {
     searchInput.disabled = true;
     searchInput.placeholder = "Audit Complete.";
     concedeBtn.classList.add('hidden');
 
-    // Reveal clue only if in Analyst mode
     if (gameMode === 'analyst') {
         clueContainer.classList.remove('hidden');
         revealFullAuditorClue();
@@ -627,8 +640,8 @@ function endGame(isWin, isConceded = false) {
         clueContainer.classList.add('hidden');
     }
 
-    // Populate Exact Target Multiples Card
     renderTargetStatsCard();
+    syncPostGameSettingsUI();
     
     setTimeout(() => {
         if (isWin) {
@@ -685,10 +698,83 @@ function renderTargetStatsCard() {
     targetStatsCard.classList.remove('hidden');
 }
 
-// --- 12. NAVIGATION & POWER-USER KEYBOARD SHORTCUTS ---
+// Sync the post-game settings UI with staged preferences
+function syncPostGameSettingsUI() {
+    pendingMarket = currentMarket;
+    pendingMode = gameMode;
+
+    if (pendingMarket === 'india') {
+        postMarketIndia.classList.add('active');
+        postMarketGlobal.classList.remove('active');
+    } else {
+        postMarketGlobal.classList.add('active');
+        postMarketIndia.classList.remove('active');
+    }
+
+    if (pendingMode === 'fundamentalist') {
+        postModeFund.classList.add('active');
+        postModeAnalyst.classList.remove('active');
+    } else {
+        postModeAnalyst.classList.add('active');
+        postModeFund.classList.remove('active');
+    }
+}
+
+// Post-Game Setting Switchers
+postMarketIndia.addEventListener('click', () => {
+    pendingMarket = 'india';
+    postMarketIndia.classList.add('active');
+    postMarketGlobal.classList.remove('active');
+});
+
+postMarketGlobal.addEventListener('click', () => {
+    pendingMarket = 'global';
+    postMarketGlobal.classList.add('active');
+    postMarketIndia.classList.remove('active');
+});
+
+postModeFund.addEventListener('click', () => {
+    pendingMode = 'fundamentalist';
+    postModeFund.classList.add('active');
+    postModeAnalyst.classList.remove('active');
+});
+
+postModeAnalyst.addEventListener('click', () => {
+    pendingMode = 'analyst';
+    postModeAnalyst.classList.add('active');
+    postModeFund.classList.remove('active');
+});
+
+// --- 12. NAVIGATION & NEXT PUZZLE ADVANCEMENT ---
 closeModalBtn.addEventListener('click', () => modal.classList.add('hidden'));
 
-function goToNextPuzzle() {
+async function goToNextPuzzle() {
+    modal.classList.add('hidden');
+    
+    const marketChanged = pendingMarket !== currentMarket;
+    const modeChanged = pendingMode !== gameMode;
+
+    // Apply Mode change
+    if (modeChanged) {
+        gameMode = pendingMode;
+        localStorage.setItem('CArtle_Mode', gameMode);
+    }
+
+    // Apply Market change
+    if (marketChanged) {
+        currentMarket = pendingMarket;
+        localStorage.setItem('CArtle_Market', currentMarket);
+        updateHeaderDisplay();
+        
+        await loadMarketData(currentMarket);
+        initPuzzleOrder();
+        loadState();
+        setupCurrentPuzzle();
+        return;
+    }
+
+    // Standard advancement within the same market
+    updateHeaderDisplay();
     currentOrderIndex++;
     guesses = [];
     gameOver = false;
@@ -700,9 +786,8 @@ function goToNextPuzzle() {
 modalNextBtn.addEventListener('click', goToNextPuzzle);
 mainNextBtn.addEventListener('click', goToNextPuzzle);
 
-// Global Keyboard Shortcuts (Enter for Next Puzzle, Escape to close modals)
+// Keyboard controls
 window.addEventListener('keydown', (e) => {
-    // If post-game modal is open
     if (!modal.classList.contains('hidden')) {
         if (e.key === 'Enter') {
             e.preventDefault();
@@ -711,23 +796,10 @@ window.addEventListener('keydown', (e) => {
             e.preventDefault();
             modal.classList.add('hidden');
         }
-        return;
-    }
-
-    // If mode selection modal is open
-    if (!modeModal.classList.contains('hidden')) {
-        if (e.key === 'Escape') {
-            e.preventDefault();
-            if (!localStorage.getItem('CArtle_Mode')) {
-                setMode('fundamentalist', true);
-            } else {
-                modeModal.classList.add('hidden');
-            }
-        }
     }
 });
 
-// --- 13. LOCAL STORAGE PERSISTENCE (INDEPENDENT PER MARKET) ---
+// --- 13. LOCAL STORAGE PERSISTENCE ---
 function saveState() {
     const state = {
         currentOrderIndex: currentOrderIndex,
