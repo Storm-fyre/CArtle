@@ -11,6 +11,7 @@
 <body>
     <header>
         <div class="header-left">
+            <button id="market-toggle-btn" class="text-pill-btn" title="Toggle Market Universe">🇮🇳 Dalal St</button>
             <button id="mode-toggle-btn" class="text-pill-btn" title="Change Difficulty Mode">📈 Fundamentalist</button>
         </div>
         <div class="header-center">
@@ -38,15 +39,20 @@
             <div class="grid-header">
                 <div>TICKER</div>
                 <div>SECTOR</div>
-                <div>MC(Cr)</div>
+                <div id="col-mcap">MC(Cr)</div>
                 <div>P/E</div>
-                <div>PROM%</div>
+                <div id="col-promoter">PROM%</div>
                 <div>D/E</div>
             </div>
             <div id="grid-rows">
                 <!-- Javascript will inject guess rows here -->
             </div>
             
+            <!-- Concede Button (Available during play) -->
+            <div class="concede-container">
+                <button id="concede-btn" class="text-link-btn" title="Concede audit">Stumped? Concede Audit</button>
+            </div>
+
             <!-- Main Screen Next Button -->
             <button id="main-next-btn" class="primary-btn hidden w-full">Next Puzzle ➡️</button>
 
@@ -57,14 +63,14 @@
             </div>
         </div>
 
-        <!-- The Clue Box -->
-        <div id="clue-container" class="clue-box">
+        <!-- The Clue Box (Hidden by default to eliminate startup flicker) -->
+        <div id="clue-container" class="clue-box hidden">
             <div class="clue-title"><span class="clue-number">Notes to Accounts:</span></div>
-            <div id="clue-text">🔒 Classified Auditor Notes: ██████████ ████████ █████████ ████. (Redactions will lift after your 2nd attempt).</div>
+            <div id="clue-text">🔒 Classified Auditor Notes: ██████████ ████████ █████████ ████.</div>
         </div>
     </main>
 
-    <!-- Mode Selection Welcome Modal -->
+    <!-- Mode Selection Modal -->
     <div id="mode-modal" class="modal hidden">
         <div class="modal-content mode-modal-content">
             <button id="close-mode-modal" class="close-btn" title="Close">✕</button>
@@ -104,6 +110,12 @@
             <div class="target-reveal flashcard">
                 Answer: <span id="target-company-name"></span>
             </div>
+            
+            <!-- Exact Target Multiples Card -->
+            <div id="target-stats-card" class="target-stats-card hidden">
+                <!-- Javascript will inject benchmark fundamentals here -->
+            </div>
+
             <button id="modal-next-btn" class="primary-btn w-full hidden">Next Puzzle ➡️</button>
         </div>
     </div>
