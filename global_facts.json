@@ -1,0 +1,242 @@
+[
+  {
+    "ticker": "AAPL",
+    "clues": [
+      "Carries negative tangible book equity due to retiring hundreds of billions in stock via aggressive ████████, while utilizing an infamous █████ tax structure.",
+      "Carries negative tangible book equity due to retiring hundreds of billions in stock via aggressive buybacks, while utilizing an infamous Irish tax structure.",
+      "Carries negative tangible book equity due to retiring hundreds of billions in stock via aggressive buybacks, while utilizing an infamous Irish tax structure."
+    ]
+  },
+  {
+    "ticker": "MSFT",
+    "clues": [
+      "Recognized enormous Intangible Goodwill following its colossal $69B acquisition of ██████████ Blizzard, while heavily funding the compute infrastructure for ██████.",
+      "Recognized enormous Intangible Goodwill following its colossal $69B acquisition of Activision Blizzard, while heavily funding the compute infrastructure for ██████.",
+      "Recognized enormous Intangible Goodwill following its colossal $69B acquisition of Activision Blizzard, while heavily funding the compute infrastructure for OpenAI."
+    ]
+  },
+  {
+    "ticker": "NVDA",
+    "clues": [
+      "Surging gross margins above 75% are protected by its proprietary ████ software moat, with billions in advance supply payments to its sole Taiwanese ██████ partner.",
+      "Surging gross margins above 75% are protected by its proprietary CUDA software moat, with billions in advance supply payments to its sole Taiwanese ██████ partner.",
+      "Surging gross margins above 75% are protected by its proprietary CUDA software moat, with billions in advance supply payments to its sole Taiwanese foundry partner."
+    ]
+  },
+  {
+    "ticker": "GOOGL",
+    "clues": [
+      "Traffic Acquisition Costs (███) paid to browser and device makers like █████ form a massive, legally scrutinized line item in its cost of revenues.",
+      "Traffic Acquisition Costs (TAC) paid to browser and device makers like █████ form a massive, legally scrutinized line item in its cost of revenues.",
+      "Traffic Acquisition Costs (TAC) paid to browser and device makers like Apple form a massive, legally scrutinized line item in its cost of revenues."
+    ]
+  },
+  {
+    "ticker": "AMZN",
+    "clues": [
+      "Under ASC 842, capitalizes tens of billions in fulfillment center ██████, while its cloud computing arm (███) generates the vast majority of consolidated operating profit.",
+      "Under ASC 842, capitalizes tens of billions in fulfillment center leases, while its cloud computing arm (███) generates the vast majority of consolidated operating profit.",
+      "Under ASC 842, capitalizes tens of billions in fulfillment center leases, while its cloud computing arm (AWS) generates the vast majority of consolidated operating profit."
+    ]
+  },
+  {
+    "ticker": "META",
+    "clues": [
+      "Cumulative operating losses exceeding $40 billion have been absorbed by its ███████ Labs division, subsidized entirely by ad revenue from its Family of ████.",
+      "Cumulative operating losses exceeding $40 billion have been absorbed by its Reality Labs division, subsidized entirely by ad revenue from its Family of ████.",
+      "Cumulative operating losses exceeding $40 billion have been absorbed by its Reality Labs division, subsidized entirely by ad revenue from its Family of Apps."
+    ]
+  },
+  {
+    "ticker": "BRK.A",
+    "clues": [
+      "Maintains a legendary cash and Treasury fortress exceeding $200 billion, underpinned by statutory insurance float from █████ and National Indemnity.",
+      "Maintains a legendary cash and Treasury fortress exceeding $200 billion, underpinned by statutory insurance float from GEICO and National Indemnity.",
+      "Maintains a legendary cash and Treasury fortress exceeding $200 billion, underpinned by statutory insurance float from GEICO and National Indemnity."
+    ]
+  },
+  {
+    "ticker": "TSLA",
+    "clues": [
+      "Historically boosted regulatory EBITDA margins via sales of zero-emission ██████ credits to legacy automakers, alongside volatile ███████ impairments on its balance sheet.",
+      "Historically boosted regulatory EBITDA margins via sales of zero-emission carbon credits to legacy automakers, alongside volatile ███████ impairments on its balance sheet.",
+      "Historically boosted regulatory EBITDA margins via sales of zero-emission carbon credits to legacy automakers, alongside volatile Bitcoin impairments on its balance sheet."
+    ]
+  },
+  {
+    "ticker": "TSM",
+    "clues": [
+      "Capitalizes massive annual CapEx exceeding $30 billion to build advanced cleanroom ████, fabricating over 90% of the world's most advanced sub-5nm ██████.",
+      "Capitalizes massive annual CapEx exceeding $30 billion to build advanced cleanroom Fabs, fabricating over 90% of the world's most advanced sub-5nm ██████.",
+      "Capitalizes massive annual CapEx exceeding $30 billion to build advanced cleanroom Fabs, fabricating over 90% of the world's most advanced sub-5nm chips."
+    ]
+  },
+  {
+    "ticker": "LLY",
+    "clues": [
+      "Valuation surged past $800B driven by astronomical prescription demand for its dual GIP/GLP-1 receptor agonist ████████ (tirzepatide).",
+      "Valuation surged past $800B driven by astronomical prescription demand for its dual GIP/GLP-1 receptor agonist M███████ (tirzepatide).",
+      "Valuation surged past $800B driven by astronomical prescription demand for its dual GIP/GLP-1 receptor agonist Mounjaro (tirzepatide)."
+    ]
+  },
+  {
+    "ticker": "AVGO",
+    "clues": [
+      "A relentless roll-up aggregator led by Hock Tan, taking on massive syndicated debt to acquire enterprise cloud software giant ███████ for $69 billion.",
+      "A relentless roll-up aggregator led by Hock Tan, taking on massive syndicated debt to acquire enterprise cloud software giant VMware for $69 billion.",
+      "A relentless roll-up aggregator led by Hock Tan, taking on massive syndicated debt to acquire enterprise cloud software giant VMware for $69 billion."
+    ]
+  },
+  {
+    "ticker": "JPM",
+    "clues": [
+      "Leveraged its fortress balance sheet to absorb the failed assets of First ████████ Bank during a weekend FDIC auction engineered by CEO Jamie Dimon.",
+      "Leveraged its fortress balance sheet to absorb the failed assets of First Republic Bank during a weekend FDIC auction engineered by CEO Jamie Dimon.",
+      "Leveraged its fortress balance sheet to absorb the failed assets of First Republic Bank during a weekend FDIC auction engineered by CEO Jamie Dimon."
+    ]
+  },
+  {
+    "ticker": "NVO",
+    "clues": [
+      "Controlled via a dual-class voting foundation in Denmark, generating unprecedented European trade surpluses thanks to its blockbuster diabetes drug ███████.",
+      "Controlled via a dual-class voting foundation in Denmark, generating unprecedented European trade surpluses thanks to its blockbuster diabetes drug Ozempic.",
+      "Controlled via a dual-class voting foundation in Denmark, generating unprecedented European trade surpluses thanks to its blockbuster diabetes drug Ozempic."
+    ]
+  },
+  {
+    "ticker": "V",
+    "clues": [
+      "Maintains an extraordinary operating margin exceeding 65%, operating an asset-light transaction switch that connects issuing banks via its proprietary ███████ network.",
+      "Maintains an extraordinary operating margin exceeding 65%, operating an asset-light transaction switch that connects issuing banks via its proprietary VisaNet network.",
+      "Maintains an extraordinary operating margin exceeding 65%, operating an asset-light transaction switch that connects issuing banks via its proprietary VisaNet network."
+    ]
+  },
+  {
+    "ticker": "WMT",
+    "clues": [
+      "Operates with negative working capital by turning inventory in 45 days while taking 50+ days to settle trade payables to suppliers, backed by the ██████ family trust.",
+      "Operates with negative working capital by turning inventory in 45 days while taking 50+ days to settle trade payables to suppliers, backed by the Walton family trust.",
+      "Operates with negative working capital by turning inventory in 45 days while taking 50+ days to settle trade payables to suppliers, backed by the Walton family trust."
+    ]
+  },
+  {
+    "ticker": "XOM",
+    "clues": [
+      "Capitalized massive upstream discoveries in the deepwater Stabroek Block offshore ██████, surviving an aggressive boardroom proxy fight launched by hedge fund Engine No. 1.",
+      "Capitalized massive upstream discoveries in the deepwater Stabroek Block offshore Guyana, surviving an aggressive boardroom proxy fight launched by hedge fund Engine No. 1.",
+      "Capitalized massive upstream discoveries in the deepwater Stabroek Block offshore Guyana, surviving an aggressive boardroom proxy fight launched by hedge fund Engine No. 1."
+    ]
+  },
+  {
+    "ticker": "LVMH",
+    "clues": [
+      "Over 45% of voting equity is locked by the Arnault family, holding trophy balance sheet intangibles like Christian Dior, Louis Vuitton, and jeweler ███████ & Co.",
+      "Over 45% of voting equity is locked by the Arnault family, holding trophy balance sheet intangibles like Christian Dior, Louis Vuitton, and jeweler Tiffany & Co.",
+      "Over 45% of voting equity is locked by the Arnault family, holding trophy balance sheet intangibles like Christian Dior, Louis Vuitton, and jeweler Tiffany & Co."
+    ]
+  },
+  {
+    "ticker": "ASML",
+    "clues": [
+      "Holds a global monopoly on High-NA Extreme Ultraviolet (███) lithography scanners, with revenue recognition dependent on complex on-site customer fab sign-offs.",
+      "Holds a global monopoly on High-NA Extreme Ultraviolet (EUV) lithography scanners, with revenue recognition dependent on complex on-site customer fab sign-offs.",
+      "Holds a global monopoly on High-NA Extreme Ultraviolet (EUV) lithography scanners, with revenue recognition dependent on complex on-site customer fab sign-offs."
+    ]
+  },
+  {
+    "ticker": "KO",
+    "clues": [
+      "Derives massive economic rent by selling concentrated proprietary syrup concentrate to independent licensed ████████, counting Warren Buffett as its longest-standing major holder.",
+      "Derives massive economic rent by selling concentrated proprietary syrup concentrate to independent licensed bottlers, counting Warren Buffett as its longest-standing major holder.",
+      "Derives massive economic rent by selling concentrated proprietary syrup concentrate to independent licensed bottlers, counting Warren Buffett as its longest-standing major holder."
+    ]
+  },
+  {
+    "ticker": "NFLX",
+    "clues": [
+      "Capitalizes billions annually as 'Licensed & Produced Content Assets', amortizing film and series production costs over a standard accelerated 3-4 year curve.",
+      "Capitalizes billions annually as 'Licensed & Produced Content Assets', amortizing film and series production costs over a standard accelerated 3-4 year curve.",
+      "Capitalizes billions annually as 'Licensed & Produced Content Assets', amortizing film and series production costs over a standard accelerated 3-4 year curve."
+    ]
+  },
+  {
+    "ticker": "AMD",
+    "clues": [
+      "Spun off its capital-intensive manufacturing fabs into GlobalFoundries in 2008, morphing into a pure-play fabless design titan led by Dr. Lisa ███.",
+      "Spun off its capital-intensive manufacturing fabs into GlobalFoundries in 2008, morphing into a pure-play fabless design titan led by Dr. Lisa Su.",
+      "Spun off its capital-intensive manufacturing fabs into GlobalFoundries in 2008, morphing into a pure-play fabless design titan led by Dr. Lisa Su."
+    ]
+  },
+  {
+    "ticker": "TM",
+    "clues": [
+      "Pioneered the 'Just-In-Time' Toyota Production System, while carrying over $150 billion in consolidated automotive financing debt via its captive credit arm.",
+      "Pioneered the 'Just-In-Time' Toyota Production System, while carrying over $150 billion in consolidated automotive financing debt via its captive credit arm.",
+      "Pioneered the 'Just-In-Time' Toyota Production System, while carrying over $150 billion in consolidated automotive financing debt via its captive credit arm."
+    ]
+  },
+  {
+    "ticker": "DIS",
+    "clues": [
+      "Carries heavy balance sheet debt incurred during its $71 billion takeover of 21st Century ███ entertainment assets, navigating streaming DTC transition friction.",
+      "Carries heavy balance sheet debt incurred during its $71 billion takeover of 21st Century Fox entertainment assets, navigating streaming DTC transition friction.",
+      "Carries heavy balance sheet debt incurred during its $71 billion takeover of 21st Century Fox entertainment assets, navigating streaming DTC transition friction."
+    ]
+  },
+  {
+    "ticker": "MCD",
+    "clues": [
+      "Functions fundamentally as a prime commercial real estate landlord under ASC 842, collecting rents and platform royalties from over 95% franchised store units.",
+      "Functions fundamentally as a prime commercial real estate landlord under ASC 842, collecting rents and platform royalties from over 95% franchised store units.",
+      "Functions fundamentally as a prime commercial real estate landlord under ASC 842, collecting rents and platform royalties from over 95% franchised store units."
+    ]
+  },
+  {
+    "ticker": "RMS",
+    "clues": [
+      "Fended off a stealth corporate takeover raid by LVMH by consolidating over 66% of family equity into a locked holding structure named ███, renowned for its Birkin bags.",
+      "Fended off a stealth corporate takeover raid by LVMH by consolidating over 66% of family equity into a locked holding structure named H51, renowned for its Birkin bags.",
+      "Fended off a stealth corporate takeover raid by LVMH by consolidating over 66% of family equity into a locked holding structure named H51, renowned for its Birkin bags."
+    ]
+  },
+  {
+    "ticker": "RACE",
+    "clues": [
+      "Carved out from Fiat Chrysler in 2015, this Italian marque commands EBITDA margins above 35% by strictly capping hypercar manufacturing quotas in Maranello.",
+      "Carved out from Fiat Chrysler in 2015, this Italian marque commands EBITDA margins above 35% by strictly capping hypercar manufacturing quotas in Maranello.",
+      "Carved out from Fiat Chrysler in 2015, this Italian marque commands EBITDA margins above 35% by strictly capping hypercar manufacturing quotas in Maranello."
+    ]
+  },
+  {
+    "ticker": "BABA",
+    "clues": [
+      "Subjected to a record $2.8 billion SAMR antitrust fine in China and the halted IPO of affiliate ███ Group, leading to a historic corporate breakup into six business units.",
+      "Subjected to a record $2.8 billion SAMR antitrust fine in China and the halted IPO of affiliate Ant Group, leading to a historic corporate breakup into six business units.",
+      "Subjected to a record $2.8 billion SAMR antitrust fine in China and the halted IPO of affiliate Ant Group, leading to a historic corporate breakup into six business units."
+    ]
+  },
+  {
+    "ticker": "SONY",
+    "clues": [
+      "Operating income is anchored not by consumer TVs, but by high-margin CMOS camera image sensors and recurring network subscriptions for its ███████████ ecosystem.",
+      "Operating income is anchored not by consumer TVs, but by high-margin CMOS camera image sensors and recurring network subscriptions for its PlayStation ecosystem.",
+      "Operating income is anchored not by consumer TVs, but by high-margin CMOS camera image sensors and recurring network subscriptions for its PlayStation ecosystem."
+    ]
+  },
+  {
+    "ticker": "BA",
+    "clues": [
+      "Navigating severe negative shareholder equity and billions in concession liabilities caused by commercial production pauses of the 737 ███ family.",
+      "Navigating severe negative shareholder equity and billions in concession liabilities caused by commercial production pauses of the 737 MAX family.",
+      "Navigating severe negative shareholder equity and billions in concession liabilities caused by commercial production pauses of the 737 MAX family."
+    ]
+  },
+  {
+    "ticker": "PLTR",
+    "clues": [
+      "Co-founded by venture capitalist Peter █████, this data analytics contractor transitioned from top-secret US intelligence defense contracts into commercial enterprise AI.",
+      "Co-founded by venture capitalist Peter Thiel, this data analytics contractor transitioned from top-secret US intelligence defense contracts into commercial enterprise AI.",
+      "Co-founded by venture capitalist Peter Thiel, this data analytics contractor transitioned from top-secret US intelligence defense contracts into commercial enterprise AI."
+    ]
+  }
+]
